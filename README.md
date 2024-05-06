@@ -396,6 +396,17 @@ docker build -t camunda-bpm-platform \
   --build-arg MAVEN_PROXY_PASSWORD=${PROXY_PASSWORD} \
   .
 ```
+### Override MySQL and PostgreSQL driver versions. 
+By default, the driver versions are fetched from https://github.com/camunda/camunda-bpm-platform/blob/master/database/pom.xml. That can be overriden by passing `MYSQL_VERSION` and `POSTGRESQL_VERSION` build args
+
+```
+docker build -t camunda-bpm-platform \
+  --build-arg DISTRO=${DISTRO} \
+  --build-arg VERSION=${VERSION} \
+  --build-arg POSTGRESQL_VERSION=${POSTGRESQL_VERSION} \
+  --build-arg MYSQL_VERSION=${MYSQL_VERSION} \
+  .
+```
 
 ## Use cases
 
