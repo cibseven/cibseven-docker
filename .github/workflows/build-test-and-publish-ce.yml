@@ -6,14 +6,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        DISTRO: [tomcat]
-        PLATFORM: [ubuntu-22.04, aws-arm-core-2-default]
+        DISTRO: [tomcat, wildfly, run]
+        PLATFORM: [ubuntu-22.04, aws-arm-core-4-default]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Login to Docker Hub
         uses: docker/login-action@v3
-        if: ${{ matrix.PLATFORM == 'aws-arm-core-2-default' }}
+        if: ${{ matrix.PLATFORM == 'aws-arm-core-4-default' }}
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
@@ -31,12 +31,12 @@ jobs:
           DISTRO: ${{ matrix.DISTRO }}
           EE: false
   publish:
-    runs-on: aws-arm-core-2-default
+    runs-on: aws-arm-core-4-default
     needs: build-and-test
     #if: ${{ github.ref == 'refs/heads/next' || startsWith(github.ref, 'refs/heads/7.') }}
     strategy:
       matrix:
-        DISTRO: [tomcat]
+        DISTRO: [tomcat, wildfly, run]
     steps:
       - name: Checkout
         uses: actions/checkout@v4

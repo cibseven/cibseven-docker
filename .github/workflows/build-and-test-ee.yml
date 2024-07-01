@@ -16,10 +16,16 @@ jobs:
     strategy:
       matrix:
         DISTRO: [tomcat, wildfly, run]
-        PLATFORM: [ubuntu-22.04, aws-arm-core-2-default]
+        PLATFORM: [ubuntu-22.04, aws-arm-core-4-default]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        if: ${{ matrix.PLATFORM == 'aws-arm-core-4-default' }}
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
       - name: Build
         run: ./pipeline.sh
         env:
