@@ -1,14 +1,21 @@
 #!/bin/bash -eu
 RETRIES=100
 WAIT=5
+
+GHA=${GITHUB_ACTIONS:-false}
+if [ "${GHA}" = "true" ]; then
+  shopt -s expand_aliases
+  alias docker-compose="docker compose"
+fi
+
 function _log {
   >&2 echo $@
 }
 
 function stop_container {
   docker logs $(container_id)
-  docker compose kill ${SERVICE}
-  docker compose rm --force ${SERVICE}
+  docker-compose kill ${SERVICE}
+  docker-compose rm --force ${SERVICE}
 }
 
 function _exit {
@@ -18,11 +25,11 @@ function _exit {
 }
 
 function start_container {
-  docker compose up -d --no-recreate ${SERVICE} || _exit 1 "Unable to start compose"
+  docker-compose up -d --no-recreate ${SERVICE} || _exit 1 "Unable to start compose"
 }
 
 function container_id {
-  docker compose ps -q ${SERVICE}
+  docker-compose ps -q ${SERVICE}
 }
 
 function grep_log {
