@@ -61,13 +61,13 @@ pipeline {
         container(Constants.KANIKO_CONTAINER) {
           script {
             // TODO: move into Dockerfile
-            def imageVersion = '1.0.1-SNAPSHOT'
+            def imageVersion = '1.0'
             sh """
               /kaniko/executor --dockerfile `pwd`/Dockerfile \
                   --context `pwd` \
                   --build-arg arg_version=${imageVersion} \
                   --build-arg arg_opentelemetry_agent_version=${opentelemetryAgentVersion} \
-                  --destination=harbor.cib.de/dev/java-21-base:${imageVersion}
+                  --destination=harbor.cib.de/dev/cib-seven:${imageVersion}
             """
           }
         }
