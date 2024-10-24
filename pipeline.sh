@@ -14,7 +14,9 @@ else
   VERSION_ARGUMENT="--build-arg VERSION=${VERSION}"
 fi
 
-IMAGE_NAME=camunda/camunda-bpm-platform:${DISTRO}-${PLATFORM}
+REPO=harbor.cib.de
+IMAGE=dev/cib-seven
+IMAGE_NAME=${REPO}/${IMAGE}:${DISTRO}-${PLATFORM}
 
 docker buildx build .                         \
     -t "${IMAGE_NAME}"                        \

@@ -8,7 +8,7 @@ PLATFORMS=${PLATFORMS:-linux/amd64}
 NEXUS_USER=${NEXUS_USER:-}
 NEXUS_PASS=${NEXUS_PASS:-}
 
-IMAGE=camunda/camunda-bpm-platform
+IMAGE=harbor.cib.de/dev/cib-seven
 
 function build_and_push {
     local tags=("$@")
@@ -38,7 +38,7 @@ if [ $(docker manifest inspect $IMAGE:${DISTRO}-${VERSION} > /dev/null ; echo $?
     exit 0
 fi
 
-docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
+# docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
 
 tags=()
 

@@ -1,6 +1,6 @@
 FROM alpine:3.18 as builder
 
-ARG VERSION=7.22.0
+ARG VERSION=7.22.0-cibseven
 ARG DISTRO=tomcat
 ARG SNAPSHOT=false
 
@@ -36,9 +36,9 @@ COPY camunda-lib.sh /camunda/
 
 FROM alpine:3.18
 
-ARG VERSION=7.22.0
+ARG VERSION=7.22.0-cibseven
 
-ENV CAMUNDA_VERSION=${VERSION}
+ENV CAMUNDA_VERSION=7.22.0-cibseven
 ENV DB_DRIVER=
 ENV DB_URL=
 ENV DB_USERNAME=

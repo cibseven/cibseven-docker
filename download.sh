@@ -2,7 +2,7 @@
 
 # Determine nexus URL parameters
 if [ "${EE}" = "true" ]; then
-    echo "Downloading Camunda ${VERSION} Enterprise Edition for ${DISTRO}"
+    echo "Downloading CIB seven ${VERSION} Enterprise Edition for ${DISTRO}"
     REPO="private"
     NEXUS_GROUP="private"
     ARTIFACT="camunda-bpm-ee-${DISTRO}"
@@ -11,9 +11,9 @@ if [ "${EE}" = "true" ]; then
     fi
     ARTIFACT_VERSION="${VERSION}-ee"
 else
-    echo "Downloading Camunda ${VERSION} Community Edition for ${DISTRO}"
-    REPO="camunda-bpm"
-    NEXUS_GROUP="public"
+    echo "Downloading CIB seven ${VERSION} Community Edition for ${DISTRO}"
+    REPO="mvn-cib-seven-release"
+    NEXUS_GROUP="mvn-cib-seven"
     ARTIFACT="camunda-bpm-${DISTRO}"
     ARTIFACT_VERSION="${VERSION}"
 fi
@@ -63,7 +63,7 @@ fi
 
 mvn dependency:get -U -B --global-settings /tmp/settings.xml \
     $PROXY \
-    -DremoteRepositories="camunda-nexus::::https://artifacts.camunda.com/artifactory/${REPO}/" \
+    -DremoteRepositories="cib-seven-internal-repository::::https://nexus.cib.de/repository/${REPO}/" \
     -DgroupId="${ARTIFACT_GROUP}" -DartifactId="${ARTIFACT}" \
     -Dversion="${ARTIFACT_VERSION}" -Dpackaging="tar.gz" -Dtransitive=false
 cambpm_distro_file=$(find /m2-repository -name "${ARTIFACT}-${ARTIFACT_VERSION}.tar.gz" -print | head -n 1)
@@ -78,7 +78,7 @@ cp /tmp/camunda-${GROUP}.sh /camunda/camunda.sh
 # download and register database drivers
 mvn dependency:get -U -B --global-settings /tmp/settings.xml \
     $PROXY \
-    -DremoteRepositories="camunda-nexus::::https://artifacts.camunda.com/artifactory/${NEXUS_GROUP}/" \
+    -DremoteRepositories="cib-seven-internal-repository::::https://nexus.cib.de/repository/${NEXUS_GROUP}/" \
     -DgroupId="org.camunda.bpm" -DartifactId="camunda-database-settings" \
     -Dversion="${ARTIFACT_VERSION}" -Dpackaging="pom" -Dtransitive=false
 cambpmdbsettings_pom_file=$(find /m2-repository -name "camunda-database-settings-${ARTIFACT_VERSION}.pom" -print | head -n 1)

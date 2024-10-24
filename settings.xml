@@ -2,20 +2,23 @@
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
   <localRepository>m2-repository</localRepository>
+
   <servers>
     <server>
-      <id>camunda-nexus</id>
+      <id>cib-seven-internal-repository</id>
       <username>${env.USER}</username>
       <password>${env.PASSWORD}</password>
     </server>
   </servers>
   <mirrors>
     <mirror>
-      <id>camunda-nexus</id>
-      <mirrorOf>camunda-nexus</mirrorOf>
-      <name>Camunda Nexus</name>
-      <url>https://repository.nexus.camunda.cloud/content/groups/internal/</url>
+      <id>cib-seven-internal-repository</id>
+      <mirrorOf>cib-seven-internal-repository</mirrorOf>
+      <name>CIB seven Nexus</name>
+      <url>https://nexus.cib.de/repository/mvn-cib-seven-release/</url>
     </mirror>
   </mirrors>
+
 </settings>
