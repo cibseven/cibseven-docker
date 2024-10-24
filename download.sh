@@ -61,12 +61,6 @@ if [ -n "$MAVEN_PROXY_HOST" ] ; then
 	fi
 fi
 
-echo "==============================================================================================="
-printenv
-echo "-----------------------------------------------------------------------------------------------"
-cat /tmp/settings.xml
-echo "==============================================================================================="
-
 mvn dependency:get -U -B --global-settings /tmp/settings.xml \
     $PROXY \
     -DremoteRepositories="cib-seven-internal-repository::::https://nexus.cib.de/repository/${REPO}/" \
