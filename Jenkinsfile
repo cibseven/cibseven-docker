@@ -34,22 +34,6 @@ pipeline {
       }
     }
 
-    stage('download maven artifacts') {
-      when {
-        anyOf {
-          branch 'master'
-          expression { params.DEPLOY_ANY_BRANCH }
-        }
-      }
-      steps {
-        script {
-          def uploadDir = "./opentelemetry/"
-          opentelemetryAgentVersion = "2.8.0"
-          downloadMavenArtifact(new MavenArtifact("io.opentelemetry.javaagent", "opentelemetry-javaagent", "${opentelemetryAgentVersion}", "jar", uploadDir, ""))
-        }
-      }
-    }
-
     stage('build & push image') {
       when {
         anyOf {
@@ -59,16 +43,13 @@ pipeline {
       }
       steps {
         container(Constants.KANIKO_CONTAINER) {
-          script {
-            // TODO: move into Dockerfile
-            def imageVersion = '1.0'
-            sh """
-              /kaniko/executor --dockerfile `pwd`/Dockerfile \
-                  --context `pwd` \
-                  --build-arg arg_version=${imageVersion} \
-                  --build-arg arg_opentelemetry_agent_version=${opentelemetryAgentVersion} \
-                  --destination=harbor.cib.de/dev/cib-seven:${imageVersion}
-            """
+          withCredentials([usernamePassword(credentialsId: 'credential-nexus-usernamepassword', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+            script {
+              sh """
+                /kaniko/executor --dockerfile `pwd`/Dockerfile \
+                    --context `pwd`
+              """
+            }
           }
         }
       }
