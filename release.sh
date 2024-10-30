@@ -8,7 +8,7 @@ PLATFORMS=${PLATFORMS:-linux/amd64}
 NEXUS_USER=${NEXUS_USER:-}
 NEXUS_PASS=${NEXUS_PASS:-}
 
-IMAGE=harbor.cib.de/dev/cib-seven
+IMAGE=harbor.cib.de/dev/cibseven
 
 function build_and_push {
     local tags=("$@")

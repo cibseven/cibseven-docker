@@ -40,7 +40,7 @@ pipeline {
                     --context `pwd` \
                     --build-arg USER="${USER}" \
                     --build-arg PASSWORD=${PASS} \
-                    --destination=harbor.cib.de/dev/cib-seven:1.0
+                    --destination=harbor.cib.de/dev/cibseven:1.0
               """
             }
           }

@@ -15,7 +15,7 @@ else
 fi
 
 REPO=harbor.cib.de
-IMAGE=dev/cib-seven
+IMAGE=dev/cibseven
 IMAGE_NAME=${REPO}/${IMAGE}:${DISTRO}-${PLATFORM}
 
 docker buildx build .                         \
