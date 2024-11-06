@@ -1,30 +1,15 @@
 #!/bin/sh -ex
 
 # Determine nexus URL parameters
-if [ "${EE}" = "true" ]; then
-    echo "Downloading CIB seven ${VERSION} Enterprise Edition for ${DISTRO}"
-    REPO="private"
-    NEXUS_GROUP="private"
-    ARTIFACT="camunda-bpm-ee-${DISTRO}"
-    if [ "${DISTRO}" = "run" ]; then
-      ARTIFACT="camunda-bpm-run-ee"
-    fi
-    ARTIFACT_VERSION="${VERSION}-ee"
-else
-    echo "Downloading CIB seven ${VERSION} Community Edition for ${DISTRO}"
-    REPO="mvn-cibseven-release"
-    NEXUS_GROUP="mvn-cibseven"
-    ARTIFACT="camunda-bpm-${DISTRO}"
-    ARTIFACT_VERSION="${VERSION}"
-fi
+echo "Downloading CIB seven ${VERSION} Community Edition for ${DISTRO}"
+REPO="mvn-cibseven-release"
+NEXUS_GROUP="mvn-cibseven"
+ARTIFACT="cibseven-${DISTRO}"
+ARTIFACT_VERSION="${VERSION}"
 
 # Determine if SNAPSHOT repo and version should be used
 if [ ${SNAPSHOT} = "true" ]; then
-    # CE artefacts are public, EE require forced authentication via virtual repository (private)
-    # preemptively sending them in settings.xml would fail CE builds
-    if [ "${EE}" = "false" ]; then
-        REPO="${REPO}-snapshots"
-    fi
+	REPO="mvn-cibseven-snapshot"
     ARTIFACT_VERSION="${VERSION}-SNAPSHOT"
 fi
 
@@ -33,7 +18,7 @@ case ${DISTRO} in
     wildfly*) GROUP="wildfly" ;;
     *) GROUP="${DISTRO}" ;;
 esac
-ARTIFACT_GROUP="org.camunda.bpm.${GROUP}"
+ARTIFACT_GROUP="de.cibseven.${GROUP}"
 
 # Download distro from nexus
 
@@ -66,12 +51,12 @@ mvn dependency:get -U -B --global-settings /tmp/settings.xml \
     -DremoteRepositories="cibseven-internal-repository::::https://nexus.cib.de/repository/${REPO}/" \
     -DgroupId="${ARTIFACT_GROUP}" -DartifactId="${ARTIFACT}" \
     -Dversion="${ARTIFACT_VERSION}" -Dpackaging="tar.gz" -Dtransitive=false
-cambpm_distro_file=$(find /m2-repository -name "${ARTIFACT}-${ARTIFACT_VERSION}.tar.gz" -print | head -n 1)
+distro_file=$(find /m2-repository -name "${ARTIFACT}-${ARTIFACT_VERSION}.tar.gz" -print | head -n 1)
 # Unpack distro to /camunda directory
 mkdir -p /camunda
 case ${DISTRO} in
-    run*) tar xzf "$cambpm_distro_file" -C /camunda;;
-    *)    tar xzf "$cambpm_distro_file" -C /camunda server --strip 2;;
+    run*) tar xzf "$distro_file" -C /camunda;;
+    *)    tar xzf "$distro_file" -C /camunda server --strip 2;;
 esac
 cp /tmp/camunda-${GROUP}.sh /camunda/camunda.sh
 
@@ -80,8 +65,8 @@ mvn dependency:get -U -B --global-settings /tmp/settings.xml \
     $PROXY \
     -DremoteRepositories="cibseven-internal-repository::::https://nexus.cib.de/repository/${NEXUS_GROUP}/" \
     -DgroupId="org.camunda.bpm" -DartifactId="camunda-database-settings" \
-    -Dversion="${ARTIFACT_VERSION}" -Dpackaging="pom" -Dtransitive=false
-cambpmdbsettings_pom_file=$(find /m2-repository -name "camunda-database-settings-${ARTIFACT_VERSION}.pom" -print | head -n 1)
+    -Dversion="${CAMUNDA_VERSION}" -Dpackaging="pom" -Dtransitive=false
+cambpmdbsettings_pom_file=$(find /m2-repository -name "camunda-database-settings-${CAMUNDA_VERSION}.pom" -print | head -n 1)
 if [ -z "$MYSQL_VERSION" ]; then
     MYSQL_VERSION=$(xmlstarlet sel -t -v //_:version.mysql $cambpmdbsettings_pom_file)
 fi
