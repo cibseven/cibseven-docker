@@ -50,16 +50,12 @@ pipeline {
       }
       steps {
         container(Constants.KANIKO_CONTAINER) {
-          withCredentials([usernamePassword(credentialsId: 'credential-nexus-usernamepassword', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-            script {
-              sh """
-                /kaniko/executor --dockerfile `pwd`/Dockerfile \
-                    --context `pwd` \
-                    --build-arg USER="${USER}" \
-                    --build-arg PASSWORD=${PASS} \
-                    --destination="harbor.cib.de/dev/cibseven:1.0"
-              """
-            }
+          script {
+            sh """
+              /kaniko/executor --dockerfile `pwd`/Dockerfile \
+                  --context `pwd` \
+                  --destination="harbor.cib.de/dev/cibseven:1.0"
+            """
           }
         }
       }
@@ -71,17 +67,12 @@ pipeline {
       }
       steps {
         container(Constants.KANIKO_CONTAINER) {
-          withCredentials([usernamePassword(credentialsId: 'credential-dockerhub-cibseven-usernamepassword', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-            script {
-              sh """
-                /kaniko/executor --dockerfile `pwd`/Dockerfile \
-                    --verbosity debug \
-                    --context `pwd` \
-                    --build-arg USER="${USER}" \
-                    --build-arg PASSWORD=${PASS} \
-                    --destination="index.docker.io/cibseven/cibseven:1.0"
-              """
-            }
+          script {
+            sh """
+              /kaniko/executor --dockerfile `pwd`/Dockerfile \
+                  --context `pwd` \
+                  --destination="index.docker.io/cibseven/cibseven:1.0"
+            """
           }
         }
       }
