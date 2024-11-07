@@ -7,18 +7,10 @@
 
   <servers>
     <server>
-      <id>cibseven-internal-repository</id>
+      <id>mvn-cibseven-public</id>
       <username>${env.USER}</username>
       <password>${env.PASSWORD}</password>
     </server>
   </servers>
-  <mirrors>
-    <mirror>
-      <id>cibseven-internal-repository</id>
-      <mirrorOf>cibseven-internal-repository</mirrorOf>
-      <name>CIB seven Nexus</name>
-      <url>https://nexus.cib.de/repository/mvn-cibseven-release/</url>
-    </mirror>
-  </mirrors>
 
 </settings>
