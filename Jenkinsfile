@@ -71,6 +71,7 @@ pipeline {
             sh """
               /kaniko/executor --dockerfile `pwd`/Dockerfile \
                   --context `pwd` \
+                  --verbosity \
                   --destination="docker.io/cibseven/cibseven:1.0"
             """
           }
