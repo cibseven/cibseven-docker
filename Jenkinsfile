@@ -57,7 +57,7 @@ pipeline {
                     --context `pwd` \
                     --build-arg USER="${USER}" \
                     --build-arg PASSWORD=${PASS} \
-                    --destination=harbor.cib.de/dev/cibseven:1.0
+                    --destination="harbor.cib.de/dev/cibseven:1.0"
               """
             }
           }
@@ -78,7 +78,7 @@ pipeline {
                     --context `pwd` \
                     --build-arg USER="${USER}" \
                     --build-arg PASSWORD=${PASS} \
-                    --destination=cibseven/cibseven:1.0
+                    --destination="cibseven/cibseven:1.0"
               """
             }
           }
