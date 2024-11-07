@@ -57,7 +57,7 @@ pipeline {
                     --context `pwd` \
                     --build-arg USER="${USER}" \
                     --build-arg PASSWORD=${PASS} \
-                    --destination=harbor.cib.de/dev/cibseven:1.0
+                    --destination="harbor.cib.de/dev/cibseven:1.0"
               """
             }
           }
@@ -75,10 +75,11 @@ pipeline {
             script {
               sh """
                 /kaniko/executor --dockerfile `pwd`/Dockerfile \
+                    --verbosity debug \
                     --context `pwd` \
                     --build-arg USER="${USER}" \
                     --build-arg PASSWORD=${PASS} \
-                    --destination=cibseven/cibseven:1.0
+                    --destination="index.docker.io/cibseven/cibseven:1.0"
               """
             }
           }
