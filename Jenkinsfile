@@ -70,7 +70,8 @@ pipeline {
           script {
             sh """
               /kaniko/executor --dockerfile `pwd`/Dockerfile \
-                  --context `pwd`
+                  --context `pwd` \
+                  --destination="docker.io/cibseven/cibseven:1.0"
             """
           }
         }
