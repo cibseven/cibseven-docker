@@ -75,7 +75,7 @@ pipeline {
             script {
               sh """
                 /kaniko/executor --dockerfile `pwd`/Dockerfile \
-                    --verbosity debug
+                    --verbosity debug \
                     --context `pwd` \
                     --build-arg USER="${USER}" \
                     --build-arg PASSWORD=${PASS} \
