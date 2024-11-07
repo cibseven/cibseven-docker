@@ -23,6 +23,20 @@ pipeline {
     disableConcurrentBuilds()
   }
 
+  // Parameter that can be changed in the Jenkins UI
+  parameters {
+    booleanParam(
+      name: 'DEPLOY_HARBOR_CIB_DE',
+      defaultValue: false,
+      description: 'Deploy to https://harbor.cib.de (snapshots)'
+    ),
+    booleanParam(
+      name: 'DEPLOY_DOCKER_HUB',
+      defaultValue: false,
+      description: 'Deploy to https://hub.docker.com (public released versions)'
+    )
+  }
+
   stages {
     stage('prepare workspace and checkout') {
       steps {
@@ -30,7 +44,10 @@ pipeline {
       }
     }
 
-    stage('build & push image') {
+    stage('harbor.cib.de') {
+      when {
+        expression { params.DEPLOY_HARBOR_CIB_DE == true }
+      }
       steps {
         container(Constants.KANIKO_CONTAINER) {
           withCredentials([usernamePassword(credentialsId: 'credential-nexus-usernamepassword', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
@@ -47,5 +64,27 @@ pipeline {
         }
       }
     }
+
+    stage('hub.docker.com') {
+      when {
+        expression { params.DEPLOY_DOCKER_HUB == true }
+      }
+      steps {
+        container(Constants.KANIKO_CONTAINER) {
+          withCredentials([usernamePassword(credentialsId: 'credential-dockerhub-cibseven-usernamepassword', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+            script {
+              sh """
+                /kaniko/executor --dockerfile `pwd`/Dockerfile \
+                    --context `pwd` \
+                    --build-arg USER="${USER}" \
+                    --build-arg PASSWORD=${PASS} \
+                    --destination=cibseven/cibseven:1.0
+              """
+            }
+          }
+        }
+      }
+    }
+
   }
 }
