@@ -66,9 +66,9 @@ If no `${DISTRO}` is specified, the `tomcat` distribution is used. For all avail
 
 ## CIB seven configuration
 
-You can find the complete Camunda documentation at https://docs.cibseven.de/.
+You can find the complete CIB seven documentation at https://docs.cibseven.de/.
 
-If you prefer to start your Camunda Docker image right away, you will find the
+If you prefer to start your CIB seven Docker image right away, you will find the
 following links useful:
 
 * [CIB seven configuration file properties](https://docs.cibseven.de/manual/latest/reference/deployment-descriptors/descriptors/bpm-platform-xml/)
@@ -359,7 +359,7 @@ docker build -t cibseven \
   .
 ```
 ### Override MySQL and PostgreSQL driver versions. 
-By default, the driver versions are fetched from https://github.com/cibseven/camunda-bpm-platform/blob/master/database/pom.xml. That can be overriden by passing `MYSQL_VERSION` and `POSTGRESQL_VERSION` build args
+By default, the driver versions are fetched from https://github.com/cibseven/cibseven/blob/master/database/pom.xml. That can be overriden by passing `MYSQL_VERSION` and `POSTGRESQL_VERSION` build args
 
 ```
 docker build -t cibseven \
