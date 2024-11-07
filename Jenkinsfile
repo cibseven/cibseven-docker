@@ -29,7 +29,7 @@ pipeline {
       name: 'DEPLOY_HARBOR_CIB_DE',
       defaultValue: false,
       description: 'Deploy to https://harbor.cib.de (snapshots)'
-    ),
+    )
     booleanParam(
       name: 'DEPLOY_DOCKER_HUB',
       defaultValue: false,
