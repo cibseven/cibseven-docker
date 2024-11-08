@@ -11,7 +11,7 @@ if [[ -z "${DB_PASSWORD:-}" && -n "${DB_PASSWORD_FILE:-}" && -f "${DB_PASSWORD_F
 fi
 
 # For compatibility: when DB_ variables are set, translate them to SPRING_ variables.
-# Otherwise [defaults](https://github.com/cibseven/camunda-bpm-platform/blob/master/distro/run/assembly/resources/default.yml)
+# Otherwise [defaults](https://github.com/cibseven/cibseven/blob/master/distro/run/assembly/resources/default.yml)
 # will be used.
 
 if [[ -z "${SPRING_DATASOURCE_DRIVER_CLASS_NAME:-}" && -n "${DB_DRIVER:-}" ]]; then

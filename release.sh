@@ -8,7 +8,7 @@ PLATFORMS=${PLATFORMS:-linux/amd64}
 NEXUS_USER=${NEXUS_USER:-}
 NEXUS_PASS=${NEXUS_PASS:-}
 
-IMAGE=harbor.cib.de/dev/cibseven
+IMAGE=cibseven/cibseven-test
 
 function build_and_push {
     local tags=("$@")
@@ -58,8 +58,8 @@ else
 fi
 
 # Latest Docker image is created and pushed just once when a new version is relased.
-# Latest tag refers to the latest minor release of Camunda Platform.
-# https://github.com/cibseven/docker-camunda-bpm-platform/blob/next/README.md#supported-tagsreleases
+# Latest tag refers to the latest minor release of CIB seven.
+# https://github.com/cibseven/cibseven-docker/blob/main/README.md#supported-tagsreleases
 # The 1st condition matches only when the version branch is the same as the main branch.
 git fetch origin next
 if [ $(git rev-parse HEAD) = $(git rev-parse FETCH_HEAD) ] && [ "${SNAPSHOT}" = "false" ]; then
