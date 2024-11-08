@@ -1,7 +1,7 @@
 #!/bin/sh -ex
 
 # Determine nexus URL parameters
-echo "Downloading CIB seven ${VERSION} Community Edition for ${DISTRO}"
+echo "Downloading CIB seven ${VERSION} for ${DISTRO}"
 REPO="public"
 NEXUS_GROUP="public"
 ARTIFACT="cibseven-${DISTRO}"
