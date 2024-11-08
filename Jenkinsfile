@@ -54,7 +54,7 @@ pipeline {
             sh """
               /kaniko/executor --dockerfile `pwd`/Dockerfile \
                   --context `pwd` \
-                  --platform=linux/arm64,linux/amd64
+                  --custom-platform=linux/arm64,linux/amd64
                   --destination="harbor.cib.de/dev/cibseven:1.0" \
                   --destination="harbor.cib.de/dev/cibseven:latest"
             """
@@ -73,7 +73,7 @@ pipeline {
             sh """
               /kaniko/executor --dockerfile `pwd`/Dockerfile \
                   --context `pwd` \
-                  --platform=linux/arm64,linux/amd64
+                  --custom-platform=linux/arm64,linux/amd64
                   --destination="docker.io/cibseven/cibseven:1.0" \
                   --destination="docker.io/cibseven/cibseven:latest"
             """
