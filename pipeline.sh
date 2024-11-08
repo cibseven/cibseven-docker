@@ -15,7 +15,7 @@ else
 fi
 
 REPO=docker.io
-IMAGE=cibseven/cibseven-test
+IMAGE=cibseven/cibseven
 IMAGE_NAME=${REPO}/${IMAGE}:${DISTRO}-${PLATFORM}
 
 docker buildx build .                         \

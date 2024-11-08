@@ -2,14 +2,14 @@ version: '2.4'
 
 services:
     camunda:
-        image: cibseven/cibseven-test:${DISTRO}-${PLATFORM}
+        image: cibseven/cibseven:${DISTRO}-${PLATFORM}
         platform: linux/${PLATFORM}
         ports:
             - "8080:8080"
         restart: unless-stopped
 
     camunda-mysql:
-        image: cibseven/cibseven-test:${DISTRO}-${PLATFORM}
+        image: cibseven/cibseven:${DISTRO}-${PLATFORM}
         platform: linux/${PLATFORM}
         environment:
             - DB_DRIVER=com.mysql.cj.jdbc.Driver
@@ -24,7 +24,7 @@ services:
         restart: unless-stopped
 
     camunda-postgres:
-        image: cibseven/cibseven-test:${DISTRO}-${PLATFORM}
+        image: cibseven/cibseven:${DISTRO}-${PLATFORM}
         platform: linux/${PLATFORM}
         environment:
             - DB_DRIVER=org.postgresql.Driver
@@ -39,7 +39,7 @@ services:
         restart: unless-stopped
 
     camunda-debug:
-        image: cibseven/cibseven-test:${DISTRO}-${PLATFORM}
+        image: cibseven/cibseven:${DISTRO}-${PLATFORM}
         platform: linux/${PLATFORM}
         environment:
             - DEBUG=true
@@ -49,7 +49,7 @@ services:
         restart: unless-stopped
 
     camunda-prometheus-jmx:
-        image: cibseven/cibseven-test:${DISTRO}-${PLATFORM}
+        image: cibseven/cibseven:${DISTRO}-${PLATFORM}
         platform: linux/${PLATFORM}
         environment:
             - JMX_PROMETHEUS=true
@@ -59,7 +59,7 @@ services:
         restart: unless-stopped
 
     camunda-password-file:
-        image: cibseven/cibseven-test:${DISTRO}-${PLATFORM}
+        image: cibseven/cibseven:${DISTRO}-${PLATFORM}
         platform: linux/${PLATFORM}
         environment:
             - DB_DRIVER=com.mysql.cj.jdbc.Driver
