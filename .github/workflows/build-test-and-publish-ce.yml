@@ -46,7 +46,7 @@ jobs:
   publish:
     runs-on: ubuntu-20.04
     needs: build-and-test
-    if: ${{ github.ref == 'refs/heads/next' || startsWith(github.ref, 'refs/heads/7.') }}
+    if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/7.') }}
     strategy:
       matrix:
         DISTRO: [tomcat, wildfly, run]
