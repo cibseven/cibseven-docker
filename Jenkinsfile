@@ -51,13 +51,8 @@ pipeline {
       steps {
         container(Constants.KANIKO_CONTAINER) {
           script {
-            sh """
-              /kaniko/executor --dockerfile `pwd`/Dockerfile \
-                  --context `pwd` \
-                  --custom-platform=linux/arm64,linux/amd64 \
-                  --destination="harbor.cib.de/dev/cibseven:1.0" \
-                  --destination="harbor.cib.de/dev/cibseven:latest"
-            """
+            pushImage("harbor.cib.de", "linux/amd64")
+            pushImage("harbor.cib.de", "linux/arm64")
           }
         }
       }
@@ -70,17 +65,27 @@ pipeline {
       steps {
         container(Constants.KANIKO_CONTAINER) {
           script {
-            sh """
-              /kaniko/executor --dockerfile `pwd`/Dockerfile \
-                  --context `pwd` \
-                  --custom-platform=linux/arm64,linux/amd64 \
-                  --destination="docker.io/cibseven/cibseven:1.0" \
-                  --destination="docker.io/cibseven/cibseven:latest"
-            """
+            pushImage("docker.io", "linux/amd64")
+            pushImage("docker.io", "linux/arm64")
           }
         }
       }
     }
 
   }
+}
+
+def pushImage(String destination, String platform) {
+  def prefix = ""
+  if (platform == "linux/arm64") {
+    prefix = "arm64-"
+  }
+
+  sh """
+    /kaniko/executor --dockerfile `pwd`/Dockerfile \
+        --context `pwd` \
+        --custom-platform={$platform} \
+        --destination="{$destination}/cibseven/cibseven:${prefix}1.0" \
+        --destination="{$destination}/cibseven/cibseven:${prefix}latest"
+  """
 }
