@@ -51,8 +51,8 @@ pipeline {
       steps {
         container(Constants.KANIKO_CONTAINER) {
           script {
-            pushImage("harbor.cib.de", "linux/amd64")
-            pushImage("harbor.cib.de", "linux/arm64")
+            pushImage("harbor.cib.de/dev", "linux/amd64")
+            pushImage("harbor.cib.de/dev", "linux/arm64")
           }
         }
       }
@@ -65,8 +65,8 @@ pipeline {
       steps {
         container(Constants.KANIKO_CONTAINER) {
           script {
-            pushImage("docker.io", "linux/amd64")
-            pushImage("docker.io", "linux/arm64")
+            pushImage("docker.io/cibseven", "linux/amd64")
+            pushImage("docker.io/cibseven", "linux/arm64")
           }
         }
       }
@@ -85,7 +85,7 @@ def pushImage(String destination, String platform) {
     /kaniko/executor --dockerfile `pwd`/Dockerfile \
         --context `pwd` \
         --custom-platform=${platform} \
-        --destination="${destination}/cibseven/cibseven:${prefix}1.0" \
-        --destination="${destination}/cibseven/cibseven:${prefix}latest"
+        --destination="${destination}/cibseven:${prefix}1.0" \
+        --destination="${destination}/cibseven:${prefix}latest"
   """
 }
