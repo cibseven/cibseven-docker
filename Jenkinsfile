@@ -84,8 +84,8 @@ def pushImage(String destination, String platform) {
   sh """
     /kaniko/executor --dockerfile `pwd`/Dockerfile \
         --context `pwd` \
-        --custom-platform={$platform} \
-        --destination="{$destination}/cibseven/cibseven:${prefix}1.0" \
-        --destination="{$destination}/cibseven/cibseven:${prefix}latest"
+        --custom-platform=${platform} \
+        --destination="${destination}/cibseven/cibseven:${prefix}1.0" \
+        --destination="${destination}/cibseven/cibseven:${prefix}latest"
   """
 }
