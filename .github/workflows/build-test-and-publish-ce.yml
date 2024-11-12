@@ -32,7 +32,6 @@ jobs:
         run: ./pipeline.sh
         env:
           DISTRO: ${{ matrix.DISTRO }}
-          EE: false
           PLATFORM: ${{ matrix.PLATFORM }}
           NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
           NEXUS_USER: ${{ secrets.NEXUS_USER }}
@@ -41,7 +40,6 @@ jobs:
         working-directory: test
         env:
           DISTRO: ${{ matrix.DISTRO }}
-          EE: false
           PLATFORM: ${{ matrix.PLATFORM }}
   publish:
     runs-on: ubuntu-20.04
@@ -73,7 +71,6 @@ jobs:
         run: ./release.sh
         env:
           DISTRO: ${{ matrix.DISTRO }}
-          EE: false
           PLATFORMS: linux/arm64,linux/amd64
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
           DOCKER_HUB_USERNAME:  ${{ secrets.DOCKER_HUB_USERNAME }}

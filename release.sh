@@ -1,6 +1,5 @@
 #!/bin/bash -eux
 
-EE=${EE:-false}
 VERSION=${VERSION:-$(grep VERSION= Dockerfile | head -n1 | cut -d = -f 2)}
 DISTRO=${DISTRO:-$(grep DISTRO= Dockerfile | cut -d = -f 2)}
 SNAPSHOT=${SNAPSHOT:-$(grep SNAPSHOT= Dockerfile | cut -d = -f 2)}
@@ -16,7 +15,7 @@ function build_and_push {
     docker buildx build .                         \
         $tag_arguments                            \
         --build-arg DISTRO=${DISTRO}              \
-        --build-arg EE=${EE}                      \
+        --build-arg EE=false                      \
         --build-arg USER=${NEXUS_USER}            \
         --build-arg PASSWORD=${NEXUS_PASS}        \
         --cache-from type=gha,scope="$GITHUB_REF_NAME-$DISTRO-image" \
@@ -26,11 +25,6 @@ function build_and_push {
       echo "Tags released:" >> $GITHUB_STEP_SUMMARY
       printf -- "- $IMAGE:%s\n" "${tags[@]}" >> $GITHUB_STEP_SUMMARY
 }
-
-if [ "${EE}" = "true" ]; then
-    echo "Not pushing EE image to docker hub"
-    exit 0
-fi
 
 # check whether the CE image for distro was already released and exit in that case
 if [ $(docker manifest inspect $IMAGE:${DISTRO}-${VERSION} > /dev/null ; echo $?) == '0' ]; then
