@@ -28,12 +28,12 @@ pipeline {
     booleanParam(
       name: 'DEPLOY_HARBOR_CIB_DE',
       defaultValue: false,
-      description: 'Deploy to https://harbor.cib.de (snapshots)'
+      description: 'Deploy to https://harbor.cib.de (snapshots, amd64 only)'
     )
     booleanParam(
       name: 'DEPLOY_DOCKER_HUB',
       defaultValue: false,
-      description: 'Deploy to https://hub.docker.com (public released versions)'
+      description: 'Deploy to https://hub.docker.com (public released versions, amd64 only). Please, use GitHub Actions, to deploy all possible platforms.'
     )
   }
 
@@ -52,7 +52,7 @@ pipeline {
         container(Constants.KANIKO_CONTAINER) {
           script {
             pushImage("harbor.cib.de/dev", "linux/amd64")
-            pushImage("harbor.cib.de/dev", "linux/arm64")
+            // pushImage("harbor.cib.de/dev", "linux/arm64")
           }
         }
       }
@@ -66,7 +66,7 @@ pipeline {
         container(Constants.KANIKO_CONTAINER) {
           script {
             pushImage("docker.io/cibseven", "linux/amd64")
-            pushImage("docker.io/cibseven", "linux/arm64")
+            // pushImage("docker.io/cibseven", "linux/arm64")
           }
         }
       }
