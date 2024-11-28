@@ -10,6 +10,7 @@ ARTIFACT_VERSION="${VERSION}"
 # Determine if SNAPSHOT repo and version should be used
 if [ ${SNAPSHOT} = "true" ]; then
 	REPO="snapshots"
+	NEXUS_GROUP="snapshots"
     ARTIFACT_VERSION="${VERSION}-SNAPSHOT"
 fi
 
