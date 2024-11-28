@@ -9,7 +9,7 @@ ARTIFACT_VERSION="${VERSION}"
 
 # Determine if SNAPSHOT repo and version should be used
 if [ ${SNAPSHOT} = "true" ]; then
-	REPO="mvn-cibseven-snapshot"
+	REPO="snapshots"
     ARTIFACT_VERSION="${VERSION}-SNAPSHOT"
 fi
 
@@ -48,7 +48,7 @@ fi
 
 mvn dependency:get -U -B --global-settings /tmp/settings.xml \
     $PROXY \
-    -DremoteRepositories="mvn-cibseven-public::::https://artifacts.cibseven.de/repository/${REPO}/" \
+    -DremoteRepositories="mvn-cibseven-public::::https://artifacts.cibseven.org/repository/${REPO}/" \
     -DgroupId="${ARTIFACT_GROUP}" -DartifactId="${ARTIFACT}" \
     -Dversion="${ARTIFACT_VERSION}" -Dpackaging="tar.gz" -Dtransitive=false
 distro_file=$(find /m2-repository -name "${ARTIFACT}-${ARTIFACT_VERSION}.tar.gz" -print | head -n 1)
@@ -63,10 +63,10 @@ cp /tmp/camunda-${GROUP}.sh /camunda/camunda.sh
 # download and register database drivers
 mvn dependency:get -U -B --global-settings /tmp/settings.xml \
     $PROXY \
-    -DremoteRepositories="mvn-cibseven-public::::https://artifacts.cibseven.de/repository/${NEXUS_GROUP}/" \
-    -DgroupId="org.camunda.bpm" -DartifactId="camunda-database-settings" \
+    -DremoteRepositories="mvn-cibseven-public::::https://artifacts.cibseven.org/repository/${NEXUS_GROUP}/" \
+    -DgroupId="org.cibseven.bpm" -DartifactId="cibseven-database-settings" \
     -Dversion="${CAMUNDA_VERSION}" -Dpackaging="pom" -Dtransitive=false
-cambpmdbsettings_pom_file=$(find /m2-repository -name "camunda-database-settings-${CAMUNDA_VERSION}.pom" -print | head -n 1)
+cambpmdbsettings_pom_file=$(find /m2-repository -name "cibseven-database-settings-${CAMUNDA_VERSION}.pom" -print | head -n 1)
 if [ -z "$MYSQL_VERSION" ]; then
     MYSQL_VERSION=$(xmlstarlet sel -t -v //_:version.mysql $cambpmdbsettings_pom_file)
 fi

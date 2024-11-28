@@ -10,16 +10,16 @@ planned to provide images on the official [docker registry][] for every upcoming
 The CIB seven Docker images are wrappers for the pre-packaged CIB seven
 distributions. The pre-packaged distributions are intended for users who want a 
 getting started experience. In case you want to use the CIB seven Docker images 
-in production, consider reading our [security instructions](https://docs.cibseven.de/manual/latest/user-guide/security/).
+in production, consider reading our [security instructions](https://docs.cibseven.org/manual/latest/user-guide/security/).
 
 ## Distributions
 
 You can find more detailed documentation on the pre-packaged (community) 
 distributions that CIB seven provides at the following links:
 
-* Apache Tomcat - [CIB seven Tomcat integration documentation](https://docs.cibseven.de/manual/latest/user-guide/runtime-container-integration/tomcat/)
-* Wildfly - [CIB seven Wildfly Subsystem documentation](https://docs.cibseven.de/manual/latest/user-guide/runtime-container-integration/jboss/)
-* CIB seven Run - [documentation](https://docs.cibseven.de/manual/latest/user-guide/cibseven-run/)
+* Apache Tomcat - [CIB seven Tomcat integration documentation](https://docs.cibseven.org/manual/latest/user-guide/runtime-container-integration/tomcat/)
+* Wildfly - [CIB seven Wildfly Subsystem documentation](https://docs.cibseven.org/manual/latest/user-guide/runtime-container-integration/jboss/)
+* CIB seven Run - [documentation](https://docs.cibseven.org/manual/latest/user-guide/cibseven-run/)
 
 ## Get started
 
@@ -44,9 +44,9 @@ The default credentials for admin access to the web apps is:
 
 The CIB seven Rest-API is accessible through: http://localhost:8080/engine-rest
 
-See the [REST API](https://docs.cibseven.de/manual/latest/reference/rest/) documentation for more details on how to use it.
+See the [REST API](https://docs.cibseven.org/manual/latest/reference/rest/) documentation for more details on how to use it.
 
-**Note**: The REST API does not require authentication by default. Follow the instructions from the [documentation](https://docs.cibseven.de/manual/latest/reference/rest/overview/authentication/) to enable authentication for the REST API.
+**Note**: The REST API does not require authentication by default. Follow the instructions from the [documentation](https://docs.cibseven.org/manual/latest/reference/rest/overview/authentication/) to enable authentication for the REST API.
 
 ## Supported tags/releases
 
@@ -66,14 +66,14 @@ If no `${DISTRO}` is specified, the `tomcat` distribution is used. For all avail
 
 ## CIB seven configuration
 
-You can find the complete CIB seven documentation at https://docs.cibseven.de/.
+You can find the complete CIB seven documentation at https://docs.cibseven.org/.
 
 If you prefer to start your CIB seven Docker image right away, you will find the
 following links useful:
 
-* [CIB seven configuration file properties](https://docs.cibseven.de/manual/latest/reference/deployment-descriptors/descriptors/bpm-platform-xml/)
-* [Process Engine Plugins guide](https://docs.cibseven.de/manual/latest/user-guide/process-engine/process-engine-plugins/)
-* [CIB seven Logging](https://docs.cibseven.de/manual/latest/user-guide/logging/)
+* [CIB seven configuration file properties](https://docs.cibseven.org/manual/latest/reference/deployment-descriptors/descriptors/bpm-platform-xml/)
+* [Process Engine Plugins guide](https://docs.cibseven.org/manual/latest/user-guide/process-engine/process-engine-plugins/)
+* [CIB seven Logging](https://docs.cibseven.org/manual/latest/user-guide/logging/)
 
 ## CIB seven Docker image configuration
 
