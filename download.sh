@@ -4,7 +4,7 @@
 echo "Downloading CIB seven ${VERSION} for ${DISTRO}"
 REPO="public"
 NEXUS_GROUP="public"
-ARTIFACT="cibseven-${DISTRO}"
+ARTIFACT="cibseven-bpm-${DISTRO}"
 ARTIFACT_VERSION="${VERSION}"
 
 # Determine if SNAPSHOT repo and version should be used
@@ -18,7 +18,7 @@ case ${DISTRO} in
     wildfly*) GROUP="wildfly" ;;
     *) GROUP="${DISTRO}" ;;
 esac
-ARTIFACT_GROUP="de.cibseven.${GROUP}"
+ARTIFACT_GROUP="org.cibseven.bpm.${GROUP}"
 
 # Download distro from nexus
 
