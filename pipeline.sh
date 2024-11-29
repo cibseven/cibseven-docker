@@ -20,7 +20,6 @@ docker buildx build .                         \
     -t "${IMAGE_NAME}"                        \
     --platform linux/${PLATFORM}              \
     --build-arg DISTRO=${DISTRO}              \
-    --build-arg EE=false                      \
     --build-arg USER=${NEXUS_USER}            \
     --build-arg PASSWORD=${NEXUS_PASS}        \
     ${VERSION_ARGUMENT}                       \

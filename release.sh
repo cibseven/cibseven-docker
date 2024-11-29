@@ -15,7 +15,6 @@ function build_and_push {
     docker buildx build .                         \
         $tag_arguments                            \
         --build-arg DISTRO=${DISTRO}              \
-        --build-arg EE=false                      \
         --build-arg USER=${NEXUS_USER}            \
         --build-arg PASSWORD=${NEXUS_PASS}        \
         --cache-from type=gha,scope="$GITHUB_REF_NAME-$DISTRO-image" \
