@@ -66,8 +66,8 @@ mvn dependency:get -U -B --global-settings /tmp/settings.xml \
     $PROXY \
     -DremoteRepositories="mvn-cibseven-public::::https://artifacts.cibseven.org/repository/${NEXUS_GROUP}/" \
     -DgroupId="org.cibseven.bpm" -DartifactId="cibseven-database-settings" \
-    -Dversion="${CAMUNDA_VERSION}" -Dpackaging="pom" -Dtransitive=false
-cambpmdbsettings_pom_file=$(find /m2-repository -name "cibseven-database-settings-${CAMUNDA_VERSION}.pom" -print | head -n 1)
+    -Dversion="${ARTIFACT_VERSION}" -Dpackaging="pom" -Dtransitive=false
+cambpmdbsettings_pom_file=$(find /m2-repository -name "cibseven-database-settings-${ARTIFACT_VERSION}.pom" -print | head -n 1)
 if [ -z "$MYSQL_VERSION" ]; then
     MYSQL_VERSION=$(xmlstarlet sel -t -v //_:version.mysql $cambpmdbsettings_pom_file)
 fi
