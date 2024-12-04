@@ -426,15 +426,6 @@ FROM cibseven/cibseven:tomcat-latest
 ADD my.war /camunda/webapps/my.war
 ```
 
-## Branching model
-
-Branches and their roles in this repository:
-
-- `next` (default branch) is the branch where new features and bugfixes needed 
-  to support the current `master` of [cibseven repo](https://github.com/cibseven/cibseven) go.
-- `7.x` branches get created from `next` when a CIB seven minor version
-  is released. They only receive backports of bugfixes when absolutely necessary.
-
 
 ## License
 

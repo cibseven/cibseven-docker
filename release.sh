@@ -25,9 +25,9 @@ function build_and_push {
       printf -- "- $IMAGE:%s\n" "${tags[@]}" >> $GITHUB_STEP_SUMMARY
 }
 
-# check whether the CE image for distro was already released and exit in that case
+# check whether the image for distro was already released and exit in that case
 if [ $(docker manifest inspect $IMAGE:${DISTRO}-${VERSION} > /dev/null ; echo $?) == '0' ]; then
-    echo "Not pushing already released CE image"
+    echo "Not pushing already released docker image: $IMAGE:${DISTRO}-${VERSION}"
     exit 0
 fi
 
@@ -54,9 +54,9 @@ fi
 # Latest tag refers to the latest minor release of CIB seven.
 # https://github.com/cibseven/cibseven-docker/blob/main/README.md#supported-tagsreleases
 # The 1st condition matches only when the version branch is the same as the main branch.
-git fetch origin next
+git fetch origin main
 if [ $(git rev-parse HEAD) = $(git rev-parse FETCH_HEAD) ] && [ "${SNAPSHOT}" = "false" ]; then
-    # tagging image as latest
+    # tagging image as latest only from main branch
     tags+=("${DISTRO}-latest")
     tags+=("${DISTRO}")
     if [ "${DISTRO}" = "tomcat" ]; then
