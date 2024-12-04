@@ -44,7 +44,8 @@ jobs:
   publish:
     runs-on: ubuntu-20.04
     needs: build-and-test
-    if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/1.') }}
+    # publish only from main branch
+    if: ${{ github.ref == 'refs/heads/main' }}
     strategy:
       matrix:
         DISTRO: [tomcat, wildfly, run]
