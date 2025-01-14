@@ -4,7 +4,7 @@
 echo "Downloading CIB seven ${VERSION} for ${DISTRO}"
 REPO="public"
 NEXUS_GROUP="public"
-ARTIFACT="cibseven-bpm-${DISTRO}"
+ARTIFACT="cibseven-${DISTRO}"
 ARTIFACT_VERSION="${VERSION}"
 
 # Determine if SNAPSHOT repo and version should be used
@@ -72,9 +72,9 @@ cp /tmp/camunda-${GROUP}.sh /camunda/camunda.sh
 mvn dependency:get -U -B --global-settings /tmp/settings.xml \
     $PROXY \
     -DremoteRepositories="mvn-cibseven-public::::https://artifacts.cibseven.org/repository/${NEXUS_GROUP}/" \
-    -DgroupId="org.camunda.bpm" -DartifactId="cibseven-database-settings" \
+    -DgroupId="org.camunda.bpm" -DartifactId="camunda-database-settings" \
     -Dversion="${CAMUNDA_VERSION}" -Dpackaging="pom" -Dtransitive=false
-cambpmdbsettings_pom_file=$(find /m2-repository -name "cibseven-database-settings-${CAMUNDA_VERSION}.pom" -print | head -n 1)
+cambpmdbsettings_pom_file=$(find /m2-repository -name "camunda-database-settings-${CAMUNDA_VERSION}.pom" -print | head -n 1)
 if [ -z "$MYSQL_VERSION" ]; then
     MYSQL_VERSION=$(xmlstarlet sel -t -v //_:version.mysql $cambpmdbsettings_pom_file)
 fi

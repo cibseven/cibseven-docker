@@ -12,8 +12,8 @@ else
   VERSION_ARGUMENT="--build-arg VERSION=${VERSION}"
 fi
 
-REPO=docker.io
-IMAGE=cibseven/cibseven
+REPO=harbor.cib.de
+IMAGE=dev/cibseven
 IMAGE_NAME=${REPO}/${IMAGE}:${DISTRO}-${PLATFORM}
 
 docker buildx build .                         \
