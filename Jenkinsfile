@@ -7,6 +7,7 @@ import de.cib.pipeline.library.kubernetes.BuildPodCreator
 import de.cib.pipeline.library.MavenArtifact
 
 def opentelemetryAgentVersion = ""
+def cibsevenVersion = ""
 
 pipeline {
   agent {
@@ -33,7 +34,7 @@ pipeline {
     booleanParam(
       name: 'DEPLOY_DOCKER_HUB',
       defaultValue: false,
-      description: 'Deploy to https://hub.docker.com (public released versions, amd64 only). Please, use GitHub Actions, to deploy all possible platforms.'
+      description: 'Deploy to https://hub.docker.com (public released versions, amd64 only). Please, use GitHub Actions, to deploy all possible platforms. Patch versions will not be deployed into hub.docker.com.'
     )
   }
 
@@ -41,6 +42,12 @@ pipeline {
     stage('prepare workspace and checkout') {
       steps {
         printSettings()
+
+        cibsevenVersion = sh (
+          script: 'grep VERSION= Dockerfile | head -n1 | cut -d = -f 2',
+          returnStdout: true
+        ).trim()
+        echo "CIB seven version ${cibsevenVersion}"
       }
     }
 
@@ -60,7 +67,10 @@ pipeline {
 
     stage('hub.docker.com') {
       when {
-        expression { params.DEPLOY_DOCKER_HUB == true }
+        allOf {
+          expression { params.DEPLOY_DOCKER_HUB == true }
+          expression { isPatchVersion() == false }
+        }
       }
       steps {
         container(Constants.KANIKO_CONTAINER) {
@@ -81,11 +91,35 @@ def pushImage(String destination, String platform) {
     prefix = "arm64-"
   }
 
-  sh """
-    /kaniko/executor --dockerfile `pwd`/Dockerfile \
-        --context `pwd` \
-        --custom-platform=${platform} \
-        --destination="${destination}/cibseven:${prefix}1.0" \
-        --destination="${destination}/cibseven:${prefix}latest"
-  """
+  if (isPatchVersion()) {
+    sh """
+      /kaniko/executor --dockerfile `pwd`/Dockerfile \
+          --context `pwd` \
+          --custom-platform=${platform} \
+          --destination="${destination}/cibseven:${prefix}${cibsevenVersion}"
+    """
+  }
+  else {
+        sh """
+      /kaniko/executor --dockerfile `pwd`/Dockerfile \
+          --context `pwd` \
+          --custom-platform=${platform} \
+          --destination="${destination}/cibseven:${prefix}${cibsevenVersion}" \
+          --destination="${destination}/cibseven:${prefix}latest"
+    """
+  }
+}
+
+// - "1.2.0" -> no
+// - "1.2.0-SNAPSHOT" -> no
+// - "1.2.3" -> yes
+// - "1.2.3-SNAPSHOT" -> yes
+// - "7.22.0-cibseven" -> no
+// - "7.22.1-cibseven" -> yes
+def isPatchVersion() {
+    List version = cibsevenVersion.tokenize('.')
+    if (version.size() < 3) {
+        return false
+    }
+    return version[2].tokenize('-')[0] != "0"
 }

@@ -14,6 +14,13 @@ if [ ${SNAPSHOT} = "true" ]; then
     ARTIFACT_VERSION="${VERSION}-SNAPSHOT"
 fi
 
+# LTS version has non zero patch version number - x.x.1
+if [ ${VERSION:0-1} != "0" ]; then
+    echo "Using private repo for LTS version build"
+    REPO="private"
+    NEXUS_GROUP="private"
+fi
+
 # Determine artifact group, all wildfly version have the same group
 case ${DISTRO} in
     wildfly*) GROUP="wildfly" ;;
