@@ -26,7 +26,7 @@ case ${DISTRO} in
     wildfly*) GROUP="wildfly" ;;
     *) GROUP="${DISTRO}" ;;
 esac
-ARTIFACT_GROUP="org.cibseven.bpm.${GROUP}"
+ARTIFACT_GROUP="de.cibseven.bpm.${GROUP}"
 
 # Download distro from nexus
 
@@ -72,7 +72,7 @@ cp /tmp/camunda-${GROUP}.sh /camunda/camunda.sh
 mvn dependency:get -U -B --global-settings /tmp/settings.xml \
     $PROXY \
     -DremoteRepositories="mvn-cibseven-public::::https://artifacts.cibseven.org/repository/${NEXUS_GROUP}/" \
-    -DgroupId="org.cibseven.bpm" -DartifactId="cibseven-database-settings" \
+    -DgroupId="de.cibseven.bpm" -DartifactId="cibseven-database-settings" \
     -Dversion="${ARTIFACT_VERSION}" -Dpackaging="pom" -Dtransitive=false
 cambpmdbsettings_pom_file=$(find /m2-repository -name "cibseven-database-settings-${ARTIFACT_VERSION}.pom" -print | head -n 1)
 if [ -z "$MYSQL_VERSION" ]; then
