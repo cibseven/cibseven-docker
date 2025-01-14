@@ -59,8 +59,8 @@ pipeline {
       steps {
         container(Constants.KANIKO_CONTAINER) {
           script {
-            pushImage("harbor.cib.de/dev", "linux/amd64")
-            // pushImage("harbor.cib.de/dev", "linux/arm64")
+            pushImage("harbor.cib.de/dev", "linux/amd64", cibsevenVersion)
+            // pushImage("harbor.cib.de/dev", "linux/arm64", cibsevenVersion)
           }
         }
       }
@@ -70,14 +70,14 @@ pipeline {
       when {
         allOf {
           expression { params.DEPLOY_DOCKER_HUB == true }
-          expression { isPatchVersion() == false }
+          expression { isPatchVersion(cibsevenVersion) == false }
         }
       }
       steps {
         container(Constants.KANIKO_CONTAINER) {
           script {
-            pushImage("docker.io/cibseven", "linux/amd64")
-            // pushImage("docker.io/cibseven", "linux/arm64")
+            pushImage("docker.io/cibseven", "linux/amd64", cibsevenVersion)
+            // pushImage("docker.io/cibseven", "linux/arm64", cibsevenVersion)
           }
         }
       }
@@ -86,27 +86,28 @@ pipeline {
   }
 }
 
-def pushImage(String destination, String platform) {
+def pushImage(String destination, String platform, String cibsevenVersion) {
   def prefix = ""
   if (platform == "linux/arm64") {
     prefix = "arm64-"
   }
 
-  if (isPatchVersion()) {
+  def deployLatest = !isPatchVersion(cibsevenVersion)
+  if (deployLatest) {
     sh """
-      /kaniko/executor --dockerfile `pwd`/Dockerfile \
-          --context `pwd` \
-          --custom-platform=${platform} \
-          --destination="${destination}/cibseven:${prefix}${cibsevenVersion}"
-    """
-  }
-  else {
-        sh """
       /kaniko/executor --dockerfile `pwd`/Dockerfile \
           --context `pwd` \
           --custom-platform=${platform} \
           --destination="${destination}/cibseven:${prefix}${cibsevenVersion}" \
           --destination="${destination}/cibseven:${prefix}latest"
+    """
+  }
+  else {
+    sh """
+      /kaniko/executor --dockerfile `pwd`/Dockerfile \
+          --context `pwd` \
+          --custom-platform=${platform} \
+          --destination="${destination}/cibseven:${prefix}${cibsevenVersion}"
     """
   }
 }
@@ -117,7 +118,7 @@ def pushImage(String destination, String platform) {
 // - "1.2.3-SNAPSHOT" -> yes
 // - "7.22.0-cibseven" -> no
 // - "7.22.1-cibseven" -> yes
-def isPatchVersion() {
+def isPatchVersion(cibsevenVersion) {
     List version = cibsevenVersion.tokenize('.')
     if (version.size() < 3) {
         return false
