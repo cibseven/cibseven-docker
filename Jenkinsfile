@@ -42,12 +42,13 @@ pipeline {
     stage('prepare workspace and checkout') {
       steps {
         printSettings()
-
-        cibsevenVersion = sh (
-          script: 'grep VERSION= Dockerfile | head -n1 | cut -d = -f 2',
-          returnStdout: true
-        ).trim()
-        echo "CIB seven version ${cibsevenVersion}"
+        script {
+          cibsevenVersion = sh(
+            script: 'grep VERSION= Dockerfile | head -n1 | cut -d = -f 2',
+            returnStdout: true
+          ).trim()
+          echo "CIB seven version ${cibsevenVersion}"
+        }
       }
     }
 
