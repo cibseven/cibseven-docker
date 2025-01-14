@@ -13,10 +13,10 @@ pipeline {
   agent {
     kubernetes {
       yaml BuildPodCreator.cibStandardPod()
-          .withMavenJdk11Container()
+          .withMavenJdk17Container()
           .withKanikoContainer()
           .asYaml()
-      defaultContainer Constants.MAVEN_JDK_11_CONTAINER
+      defaultContainer Constants.MAVEN_JDK_17_CONTAINER
     }
   }
 
@@ -87,28 +87,30 @@ pipeline {
 }
 
 def pushImage(String destination, String platform, String cibsevenVersion) {
-  def prefix = ""
-  if (platform == "linux/arm64") {
-    prefix = "arm64-"
-  }
+  withMaven(options: []) {
+    def prefix = ""
+    if (platform == "linux/arm64") {
+      prefix = "arm64-"
+    }
 
-  def deployLatest = !isPatchVersion(cibsevenVersion)
-  if (deployLatest) {
-    sh """
-      /kaniko/executor --dockerfile `pwd`/Dockerfile \
-          --context `pwd` \
-          --custom-platform=${platform} \
-          --destination="${destination}/cibseven:${prefix}${cibsevenVersion}" \
-          --destination="${destination}/cibseven:${prefix}latest"
-    """
-  }
-  else {
-    sh """
-      /kaniko/executor --dockerfile `pwd`/Dockerfile \
-          --context `pwd` \
-          --custom-platform=${platform} \
-          --destination="${destination}/cibseven:${prefix}${cibsevenVersion}"
-    """
+    def deployLatest = !isPatchVersion(cibsevenVersion)
+    if (deployLatest) {
+      sh """
+        /kaniko/executor --dockerfile `pwd`/Dockerfile \
+            --context `pwd` \
+            --custom-platform=${platform} \
+            --destination="${destination}/cibseven:${prefix}${cibsevenVersion}" \
+            --destination="${destination}/cibseven:${prefix}latest"
+      """
+    }
+    else {
+      sh """
+        /kaniko/executor --dockerfile `pwd`/Dockerfile \
+            --context `pwd` \
+            --custom-platform=${platform} \
+            --destination="${destination}/cibseven:${prefix}${cibsevenVersion}"
+      """
+    }
   }
 }
 
