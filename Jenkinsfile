@@ -87,28 +87,30 @@ pipeline {
 }
 
 def pushImage(String destination, String platform, String cibsevenVersion) {
-  withMaven(options: []) {
-    def prefix = ""
-    if (platform == "linux/arm64") {
-      prefix = "arm64-"
-    }
+  def prefix = ""
+  if (platform == "linux/arm64") {
+    prefix = "arm64-"
+  }
 
-    def deployLatest = !isPatchVersion(cibsevenVersion)
-    if (deployLatest) {
+  def deployLatest = !isPatchVersion(cibsevenVersion)
+  if (deployLatest) {
+    sh """
+      /kaniko/executor --dockerfile `pwd`/Dockerfile \
+          --context `pwd` \
+          --custom-platform=${platform} \
+          --destination="${destination}/cibseven:${prefix}${cibsevenVersion}" \
+          --destination="${destination}/cibseven:${prefix}latest"
+    """
+  }
+  else {
+    withCredentials([usernamePassword(credentialsId: 'credential-nexus-cibseven-usernamepassword', passwordVariable: 'NEXUS_PWD', usernameVariable: 'NEXUS_USR')]) {
       sh """
         /kaniko/executor --dockerfile `pwd`/Dockerfile \
             --context `pwd` \
             --custom-platform=${platform} \
             --destination="${destination}/cibseven:${prefix}${cibsevenVersion}" \
-            --destination="${destination}/cibseven:${prefix}latest"
-      """
-    }
-    else {
-      sh """
-        /kaniko/executor --dockerfile `pwd`/Dockerfile \
-            --context `pwd` \
-            --custom-platform=${platform} \
-            --destination="${destination}/cibseven:${prefix}${cibsevenVersion}"
+            --build-arg USER="${NEXUS_USR}" \
+            --build-arg PASSWORD=${NEXUS_PWD}
       """
     }
   }
