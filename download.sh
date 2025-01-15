@@ -54,9 +54,9 @@ if [ -n "$MAVEN_PROXY_HOST" ] ; then
 	fi
 fi
 
-mvn dependency:get -U -B --global-settings /tmp/settings.xml \
+mvn dependency:get -U -B \
     $PROXY \
-    -DremoteRepositories="mvn-cibseven-public::::https://artifacts.cibseven.org/repository/${REPO}/" \
+    -DremoteRepositories="mvn-cibseven-private::::https://artifacts.cibseven.org/repository/${REPO}/" \
     -DgroupId="${ARTIFACT_GROUP}" -DartifactId="${ARTIFACT}" \
     -Dversion="${ARTIFACT_VERSION}" -Dpackaging="tar.gz" -Dtransitive=false
 distro_file=$(find /m2-repository -name "${ARTIFACT}-${ARTIFACT_VERSION}.tar.gz" -print | head -n 1)
@@ -69,9 +69,9 @@ esac
 cp /tmp/camunda-${GROUP}.sh /camunda/camunda.sh
 
 # download and register database drivers
-mvn dependency:get -U -B --global-settings /tmp/settings.xml \
+mvn dependency:get -U -B \
     $PROXY \
-    -DremoteRepositories="mvn-cibseven-public::::https://artifacts.cibseven.org/repository/${NEXUS_GROUP}/" \
+    -DremoteRepositories="mvn-cibseven-private::::https://artifacts.cibseven.org/repository/${NEXUS_GROUP}/" \
     -DgroupId="org.camunda.bpm" -DartifactId="camunda-database-settings" \
     -Dversion="${CAMUNDA_VERSION}" -Dpackaging="pom" -Dtransitive=false
 cambpmdbsettings_pom_file=$(find /m2-repository -name "camunda-database-settings-${CAMUNDA_VERSION}.pom" -print | head -n 1)
