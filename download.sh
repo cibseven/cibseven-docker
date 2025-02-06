@@ -54,12 +54,7 @@ if [ -n "$MAVEN_PROXY_HOST" ] ; then
 	fi
 fi
 
-mvn dependency:get -U -B --global-settings /tmp/settings.xml \
-    $PROXY \
-    -DremoteRepositories="mvn-cibseven-public::::https://artifacts.cibseven.org/repository/${REPO}/" \
-    -DgroupId="${ARTIFACT_GROUP}" -DartifactId="${ARTIFACT}" \
-    -Dversion="${ARTIFACT_VERSION}" -Dpackaging="tar.gz" -Dtransitive=false
-distro_file=$(find /m2-repository -name "${ARTIFACT}-${ARTIFACT_VERSION}.tar.gz" -print | head -n 1)
+distro_file='/tmp/cibseven-bpm-tomcat-1.2.0-SNAPSHOT.tar.gz'
 # Unpack distro to /camunda directory
 mkdir -p /camunda
 case ${DISTRO} in

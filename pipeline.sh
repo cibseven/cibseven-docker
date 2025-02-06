@@ -1,5 +1,7 @@
 #!/bin/bash -ex
 
+source .env
+
 if [ -z "$SNAPSHOT" ]; then
   SNAPSHOT_ARGUMENT=""
 else

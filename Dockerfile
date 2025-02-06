@@ -26,8 +26,13 @@ RUN apk add --no-cache \
         xmlstarlet
 
 COPY settings.xml download.sh camunda-run.sh camunda-tomcat.sh camunda-wildfly.sh  /tmp/
+COPY cibseven-bpm-tomcat-1.2.0-SNAPSHOT.tar.gz /tmp/
 
-RUN /tmp/download.sh
+RUN /tmp/download.sh > /tmp/output
+# will print 5, almost anything can be retrieved from a
+# text file in bash and be used in following commands
+RUN echo $(( $(cat /output/temp_file) ))
+
 COPY camunda-lib.sh /camunda/
 
 
