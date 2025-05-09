@@ -42,7 +42,7 @@ jobs:
           DISTRO: ${{ matrix.DISTRO }}
           PLATFORM: ${{ matrix.PLATFORM }}
   publish:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: build-and-test
     # publish only from main branch
     if: ${{ github.ref == 'refs/heads/main' }}
