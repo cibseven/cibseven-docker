@@ -84,5 +84,28 @@ fi
 
 wait_for_it
 
+# Use existing wildfly distribution if present..
+JBOSS_HOME="${JBOSS_HOME:-/camunda}"
+
+# Define the target file path
+FILE="$JBOSS_HOME/modules/org/cibseven/config/main/cibseven-webclient.properties"
+
+# Check if the file already exists
+if [ ! -f "$FILE" ]; then
+  # Create directory if it doesn't exist
+  # mkdir -p "$(dirname "$FILE")"
+
+  # Generate a 155-character alphanumeric random string
+  RANDOM_STRING=$(LC_CTYPE=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 155)
+
+  # Write the content to the file
+  echo "cibseven.webclient.authentication.jwtSecret=$RANDOM_STRING" > "$FILE"
+
+  echo "File \"$FILE\" created with random jwtSecret."
+else
+  echo "File \"$FILE\" already exists. No changes made."
+fi
+
+
 # shellcheck disable=SC2086
 exec ${CMD}
