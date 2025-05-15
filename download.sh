@@ -66,7 +66,7 @@ case ${DISTRO} in
     run*) tar xzf "$distro_file" -C /camunda;;
     *)    tar xzf "$distro_file" -C /camunda server --strip 2;;
 esac
-cp /tmp/camunda-${GROUP}.sh /camunda/camunda.sh
+cp /tmp/cibseven-${GROUP}.sh /camunda/cibseven.sh
 
 # download and register database drivers
 mvn dependency:get -U -B --global-settings /tmp/settings.xml \
