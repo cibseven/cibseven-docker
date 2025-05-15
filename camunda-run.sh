@@ -3,7 +3,7 @@ set -Eeu
 
 trap 'Error on line $LINENO' ERR
 
-source $(dirname "$0")/camunda-lib.sh
+source $(dirname "$0")/wait_for_it-lib.sh
 
 # Set Password as Docker Secrets for Swarm-Mode
 if [[ -z "${DB_PASSWORD:-}" && -n "${DB_PASSWORD_FILE:-}" && -f "${DB_PASSWORD_FILE:-}" ]]; then
