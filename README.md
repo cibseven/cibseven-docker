@@ -33,7 +33,7 @@ docker run -d --name cibseven -p 8080:8080 cibseven/cibseven:latest
 ### Tasklist, Cockpit, Admin web apps
 
 The three CIB seven web apps are accessible through the landing page: 
-http://localhost:8080/webclient/
+http://localhost:8080/webapp/
 
 The default credentials for admin access to the web apps is:
 
