@@ -33,7 +33,7 @@ docker run -d --name cibseven -p 8080:8080 cibseven/cibseven:latest
 ### Tasklist, Cockpit, Admin web apps
 
 The three CIB seven web apps are accessible through the landing page: 
-http://localhost:8080/camunda/
+http://localhost:8080/webapp/
 
 The default credentials for admin access to the web apps is:
 
@@ -120,11 +120,11 @@ example:
 Enable only web apps:
 
 ```bash
-docker run cibseven/cibseven:run ./camunda.sh --webapps
+docker run cibseven/cibseven:run ./cibseven.sh --webapps
 ``` 
 Enable only REST API and Swagger UI:
 ```bash
-docker run cibseven/cibseven:run ./camunda.sh --rest --swaggerui
+docker run cibseven/cibseven:run ./cibseven.sh --rest --swaggerui
 ```
 
 Additionally, a `--production` parameter is supported to switch the 

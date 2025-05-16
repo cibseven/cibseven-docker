@@ -4,7 +4,7 @@ SERVICE=${1}
 
 source test_helper.sh
 
-test "${DISTRO}" = "run" && _log "skipping test of DEBUG socket: not supported for camunda-run" && exit 0
+test "${DISTRO}" = "run" && _log "skipping test of DEBUG socket: not supported for cibseven-run" && exit 0
 
 start_container
 

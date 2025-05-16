@@ -25,10 +25,10 @@ RUN apk add --no-cache \
         wget \
         xmlstarlet
 
-COPY settings.xml download.sh camunda-run.sh camunda-tomcat.sh camunda-wildfly.sh  /tmp/
+COPY settings.xml download.sh cibseven-run.sh cibseven-tomcat.sh cibseven-wildfly.sh  /tmp/
 
 RUN /tmp/download.sh
-COPY camunda-lib.sh /camunda/
+COPY wait_for_it-lib.sh /camunda/
 
 
 ##### FINAL IMAGE #####
@@ -78,6 +78,6 @@ WORKDIR /camunda
 USER camunda
 
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["./camunda.sh"]
+CMD ["./cibseven.sh"]
 
 COPY --chown=camunda:camunda --from=builder /camunda .
