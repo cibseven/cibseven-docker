@@ -70,11 +70,13 @@ function test_login {
 }
 
 function test_login_webapp {
-  logger "Attempting login to http://localhost:8080/services/v1/auth/login"
-  rm -f dumped-headers.txt
-  curl --dump-header dumped-headers.txt --fail -s -o/dev/null http://localhost:8080/webapp/
-  # dumped-headers.txt uses windows line endings, drop them
-  curl --cookie dumped-headers.txt -H "$(cat dumped-headers.txt | grep JSESSIONID | tr -d '\r\n')" -H "Accept: application/json" --fail -s --data '{"username":"demo","password":"demo","type":"org.cibseven.webapp.auth.rest.StandardLogin"}' -o/dev/null http://localhost:8080/services/v1/auth/login
+  logger "Attempting login to http://localhost:8080/webapp/services/v1/auth/login"
+  curl -H "Accept: application/json" \
+       -H "Content-Type: application/json" \
+       -H "Cookie: JSESSIONID=41AF408D540E7E17CF844B225123F729" \
+       --fail -s -o/dev/null \
+       --data '{"username":"demo","password":"demo","type":"org.cibseven.webapp.auth.rest.StandardLogin"}' \
+       http://localhost:8080/webapp/services/v1/auth/login
 }
 
 function test_encoding {
