@@ -69,6 +69,14 @@ function test_login {
   curl --cookie dumped-headers.txt -H "$(cat dumped-headers.txt | grep X-XSRF-TOKEN | tr -d '\r\n')" -H "Accept: application/json" --fail -s --data 'username=demo&password=demo' -o/dev/null http://127.0.0.1:8080/camunda/api/admin/auth/user/default/login/${1}
 }
 
+function test_login_webapp {
+  logger "Attempting login to http://localhost:8080/services/v1/auth/login"
+  rm -f dumped-headers.txt
+  curl --dump-header dumped-headers.txt --fail -s -o/dev/null http://localhost:8080/webapp
+  # dumped-headers.txt uses windows line endings, drop them
+  curl --cookie dumped-headers.txt -H "$(cat dumped-headers.txt | grep X-XSRF-TOKEN | tr -d '\r\n')" -H "Accept: application/json" --fail -s --data '{"username":"demo","password":"demo","type":"org.cibseven.webapp.auth.rest.StandardLogin"}' -o/dev/null http://localhost:8080/services/v1/auth/login
+}
+
 function test_encoding {
   curl --fail -w "\n" http://localhost:8080/engine-rest/deployment/create -F deployment-name=testEncoding -F testEncoding.bpmn=@testEncoding.bpmn
   curl --fail -w "\n" -H "Content-Type: application/json" -d '{}'  http://localhost:8080/engine-rest/process-definition/key/testEncoding/start
