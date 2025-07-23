@@ -1,4 +1,4 @@
-FROM alpine:3.18 as builder
+FROM alpine:3.22 as builder
 
 ARG VERSION=2.1.0
 ARG DISTRO=tomcat
@@ -33,7 +33,7 @@ COPY wait_for_it-lib.sh /camunda/
 
 ##### FINAL IMAGE #####
 
-FROM alpine:3.18
+FROM alpine:3.22
 
 ARG VERSION=2.1.0
 
