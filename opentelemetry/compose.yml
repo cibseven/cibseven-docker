@@ -1,0 +1,31 @@
+services:
+  cibseven:
+    image: cibseven/cibseven:tomcat-amd64
+    container_name: cibseven
+    environment:
+      OTEL_METRICS_EXPORTER: "otlp"
+      OTEL_LOGS_EXPORTER: "otlp"
+      OTEL_TRACES_EXPORTER: "otlp"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4318"
+    ports:
+      - 8080:8080
+      - 9464:9464
+    depends_on:
+      otel-collector:
+        condition: service_started
+    networks:
+      - otelnet
+
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    container_name: otel-collector
+    ports:
+      - "4318:4318"
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    networks:
+      - otelnet
+
+networks:
+  otelnet:
