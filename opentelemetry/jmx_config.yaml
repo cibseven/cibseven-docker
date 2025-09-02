@@ -1,0 +1,51 @@
+rules:
+  - bean: java.lang:type=OperatingSystem
+    mapping:
+      AvailableProcessors:
+        metric: java_lang_operatingsystem_availableprocessors
+        type: updowncounter
+        desc: java_lang_operatingsystem_availableprocessors
+      ProcessCpuLoad:
+        metric: java_lang_operatingsystem_processcpuload 
+        type: updowncounter
+        desc:  java_lang_operatingsystem_processcpuload. The recent cpu usage for the Java Virtual Machine process.
+      SystemCpuLoad:
+        metric: java_lang_operatingsystem_systemcpuload
+        type: updowncounter
+        desc:  java_lang_operatingsystem_systemcpuload. The recent cpu usage for the whole system.
+      ProcessCpuTime:
+        metric: java_lang_operatingsystem_processcputime
+        type: updowncounter
+        desc:  java_lang_operatingsystem_processcputime
+      SystemLoadAverage:
+        metric: java_lang_operatingsystem_systemloadaverage
+        type: updowncounter
+        desc:  java_lang_operatingsystem_systemloadaverage
+      CommittedVirtualMemorySize:
+        metric: java_lang_operatingsystem_committedvirtualmemorysize
+        type: updowncounter
+        desc: java_lang_operatingsystem_committedvirtualmemorysize
+      FreePhysicalMemorySize:
+        metric: java_lang_operatingsystem_freephysicalmemorysize
+        type: updowncounter
+        desc:  java_lang_operatingsystem_freephysicalmemorysize
+      TotalPhysicalMemorySize:
+        metric: java_lang_operatingsystem_totalphysicalmemorysize
+        type: updowncounter
+        desc:  java_lang_operatingsystem_totalphysicalmemorysize
+      FreeSwapSpaceSize:
+        metric: java_lang_operatingsystem_freeswapspacesize
+        type: updowncounter
+        desc:  java_lang_operatingsystem_freeswapspacesize
+      TotalSwapSpaceSize:
+        metric: java_lang_operatingsystem_totalswapspacesize
+        type: updowncounter
+        desc:  java_lang_operatingsystem_totalswapspacesize
+      OpenFileDescriptorCount:
+        metric: java_lang_operatingsystem_openfiledescriptorcount
+        type: updowncounter
+        desc:  java_lang_operatingsystem_openfiledescriptorcount
+      MaxFileDescriptorCount:
+        metric: java_lang_operatingsystem_maxfiledescriptorcount
+        type: updowncounter
+        desc:  java_lang_operatingsystem_maxfiledescriptorcount
