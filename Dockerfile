@@ -1,8 +1,8 @@
 FROM alpine:3.22 as builder
 
-ARG VERSION=2.1.0
+ARG VERSION=2.2.0
 ARG DISTRO=tomcat
-ARG SNAPSHOT=false
+ARG SNAPSHOT=true
 
 ARG USER
 ARG PASSWORD
@@ -35,7 +35,7 @@ COPY wait_for_it-lib.sh /camunda/
 
 FROM alpine:3.22
 
-ARG VERSION=2.1.0
+ARG VERSION=2.2.0
 
 ENV DB_DRIVER=
 ENV DB_URL=
