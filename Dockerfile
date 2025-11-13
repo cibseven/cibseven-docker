@@ -1,6 +1,9 @@
+ARG VERSION=2.2.0
+
 FROM alpine:3.22 as builder
 
-ARG VERSION=2.2.0
+# Re-declare to use in this stage (inherits the value from global)
+ARG VERSION
 ARG DISTRO=tomcat
 ARG SNAPSHOT=true
 
@@ -35,7 +38,8 @@ COPY wait_for_it-lib.sh /camunda/
 
 FROM alpine:3.22
 
-ARG VERSION=2.2.0
+# Re-declare to use in this stage (inherits the value from global)
+ARG VERSION
 
 ENV DB_DRIVER=
 ENV DB_URL=
