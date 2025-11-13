@@ -54,8 +54,7 @@ fi
 # Latest tag refers to the latest minor release of CIB seven.
 # https://github.com/cibseven/cibseven-docker/blob/main/README.md#supported-tagsreleases
 # The 1st condition matches only when the version branch is the same as the main branch.
-git fetch origin main
-if [ $(git rev-parse HEAD) = $(git rev-parse FETCH_HEAD) ] && [ "${SNAPSHOT}" = "false" ]; then
+if [ "$(git rev-parse --abbrev-ref HEAD)" = "main" ] && [ "${SNAPSHOT}" = "false" ]; then
     # tagging image as latest only from main branch
     tags+=("${DISTRO}-latest")
     tags+=("${DISTRO}")
