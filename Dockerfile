@@ -60,8 +60,11 @@ EXPOSE 8080 8000 9404
 
 # Downgrading wait-for-it is necessary until this PR is merged
 # https://github.com/vishnubob/wait-for-it/pull/68
-RUN apk upgrade --no-cache busybox busybox-binsh ssl_client \
-    && apk add --no-cache \
+# Upgrade busybox and ssl_client to fix CVEs, then install other packages
+RUN apk add --no-cache --upgrade \
+        busybox \
+        busybox-binsh \
+        ssl_client \
         bash \
         ca-certificates \
         curl \
@@ -71,7 +74,8 @@ RUN apk upgrade --no-cache busybox busybox-binsh ssl_client \
         xmlstarlet \
     && curl -o /usr/local/bin/wait-for-it.sh \
       "https://raw.githubusercontent.com/vishnubob/wait-for-it/a454892f3c2ebbc22bd15e446415b8fcb7c1cfa4/wait-for-it.sh" \
-    && chmod +x /usr/local/bin/wait-for-it.sh
+    && chmod +x /usr/local/bin/wait-for-it.sh \
+    && rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
 
 RUN addgroup -g 1000 -S camunda && \
     adduser -u 1000 -S camunda -G camunda -h /camunda -s /bin/bash -D camunda
