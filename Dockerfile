@@ -1,6 +1,6 @@
 ARG VERSION=2.2.0
 
-FROM alpine:3.22 as builder
+FROM alpine:3.23 as builder
 
 # Re-declare to use in this stage (inherits the value from global)
 ARG VERSION
@@ -36,7 +36,7 @@ COPY wait_for_it-lib.sh /camunda/
 
 ##### FINAL IMAGE #####
 
-FROM alpine:3.22
+FROM alpine:3.23
 
 # Re-declare to use in this stage (inherits the value from global)
 ARG VERSION
