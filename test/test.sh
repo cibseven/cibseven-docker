@@ -4,6 +4,13 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 cd ${DIR}
 
+# Set up the IMAGE_TAG based on JAVA version for proper image naming
+if [ "${JAVA:-17}" = "21" ]; then
+    export IMAGE_TAG="java21-${DISTRO}-${PLATFORM}"
+else
+    export IMAGE_TAG="${DISTRO}-${PLATFORM}"
+fi
+
 source test_helper.sh
 
 docker-compose up --force-recreate -d postgres mysql
