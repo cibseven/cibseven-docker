@@ -1,7 +1,7 @@
 ARG VERSION=2.2.0
 ARG JAVA=17
 
-FROM alpine:3.22 as builder
+FROM alpine:3.23 as builder
 
 # Re-declare to use in this stage (inherits the value from global)
 ARG VERSION
@@ -27,7 +27,8 @@ RUN apk add --no-cache \
         maven \
         tar \
         wget \
-        xmlstarlet
+        xmlstarlet \
+        c-ares=1.34.6-r0
 
 COPY settings.xml download.sh cibseven-run.sh cibseven-tomcat.sh cibseven-wildfly.sh  /tmp/
 
@@ -37,7 +38,7 @@ COPY wait_for_it-lib.sh /camunda/
 
 ##### FINAL IMAGE #####
 
-FROM alpine:3.22
+FROM alpine:3.23
 
 # Re-declare to use in this stage (inherits the value from global)
 ARG VERSION
@@ -74,6 +75,7 @@ RUN apk add --no-cache \
         tzdata \
         tini \
         xmlstarlet \
+        c-ares=1.34.6-r0 \
     && curl -o /usr/local/bin/wait-for-it.sh \
       "https://raw.githubusercontent.com/vishnubob/wait-for-it/a454892f3c2ebbc22bd15e446415b8fcb7c1cfa4/wait-for-it.sh" \
     && chmod +x /usr/local/bin/wait-for-it.sh
