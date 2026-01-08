@@ -8,6 +8,7 @@ jobs:
       matrix:
         DISTRO: [tomcat, wildfly, run]
         PLATFORM: [amd64, arm64]
+        JAVA: [17, 21]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,6 +34,7 @@ jobs:
         env:
           DISTRO: ${{ matrix.DISTRO }}
           PLATFORM: ${{ matrix.PLATFORM }}
+          JAVA: ${{ matrix.JAVA }}
           NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
           NEXUS_USER: ${{ secrets.NEXUS_USER }}
       - name: Test
@@ -41,6 +43,7 @@ jobs:
         env:
           DISTRO: ${{ matrix.DISTRO }}
           PLATFORM: ${{ matrix.PLATFORM }}
+          JAVA: ${{ matrix.JAVA }}
   publish:
     runs-on: ubuntu-24.04
     needs: build-and-test
@@ -49,6 +52,7 @@ jobs:
     strategy:
       matrix:
         DISTRO: [tomcat, wildfly, run]
+        JAVA: [17, 21]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -72,6 +76,7 @@ jobs:
         run: ./release.sh
         env:
           DISTRO: ${{ matrix.DISTRO }}
+          JAVA: ${{ matrix.JAVA }}
           PLATFORMS: linux/arm64,linux/amd64
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
           DOCKER_HUB_USERNAME:  ${{ secrets.DOCKER_HUB_USERNAME }}

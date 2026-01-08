@@ -1,4 +1,5 @@
 ARG VERSION=2.2.0
+ARG JAVA=17
 
 FROM alpine:3.22 as builder
 
@@ -40,6 +41,7 @@ FROM alpine:3.22
 
 # Re-declare to use in this stage (inherits the value from global)
 ARG VERSION
+ARG JAVA
 
 ENV DB_DRIVER=
 ENV DB_URL=
@@ -68,7 +70,7 @@ RUN apk add --no-cache \
         bash \
         ca-certificates \
         curl \
-        openjdk17-jre-headless \
+        openjdk${JAVA}-jre-headless \
         tzdata \
         tini \
         xmlstarlet \
