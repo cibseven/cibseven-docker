@@ -3,6 +3,7 @@
 VERSION=${VERSION:-$(grep VERSION= Dockerfile | head -n1 | cut -d = -f 2)}
 DISTRO=${DISTRO:-$(grep DISTRO= Dockerfile | cut -d = -f 2)}
 SNAPSHOT=${SNAPSHOT:-$(grep SNAPSHOT= Dockerfile | cut -d = -f 2)}
+JAVA=${JAVA:-17}
 PLATFORMS=${PLATFORMS:-linux/amd64}
 NEXUS_USER=${NEXUS_USER:-}
 NEXUS_PASS=${NEXUS_PASS:-}
@@ -15,9 +16,10 @@ function build_and_push {
     docker buildx build .                         \
         $tag_arguments                            \
         --build-arg DISTRO=${DISTRO}              \
+        --build-arg JAVA=${JAVA}                  \
         --build-arg USER=${NEXUS_USER}            \
         --build-arg PASSWORD=${NEXUS_PASS}        \
-        --cache-from type=gha,scope="$GITHUB_REF_NAME-$DISTRO-image" \
+        --cache-from type=gha,scope="$GITHUB_REF_NAME-$DISTRO-java${JAVA}-image" \
         --platform $PLATFORMS \
         --push
 
@@ -26,8 +28,14 @@ function build_and_push {
 }
 
 # check whether the image for distro was already released and exit in that case
-if [ $(docker manifest inspect $IMAGE:${DISTRO}-${VERSION} > /dev/null ; echo $?) == '0' ]; then
-    echo "Not pushing already released docker image: $IMAGE:${DISTRO}-${VERSION}"
+if [ "${JAVA}" = "21" ]; then
+    CHECK_TAG="java21-${DISTRO}-${VERSION}"
+else
+    CHECK_TAG="${DISTRO}-${VERSION}"
+fi
+
+if [ $(docker manifest inspect $IMAGE:${CHECK_TAG} > /dev/null ; echo $?) == '0' ]; then
+    echo "Not pushing already released docker image: $IMAGE:${CHECK_TAG}"
     exit 0
 fi
 
@@ -36,17 +44,34 @@ docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
 tags=()
 
 if [ "${SNAPSHOT}" = "true" ]; then
-    tags+=("${DISTRO}-${VERSION}-SNAPSHOT")
-    tags+=("${DISTRO}-SNAPSHOT")
+    if [ "${JAVA}" = "21" ]; then
+        tags+=("java21-${DISTRO}-${VERSION}-SNAPSHOT")
+        tags+=("java21-${DISTRO}-SNAPSHOT")
+        
+        if [ "${DISTRO}" = "tomcat" ]; then
+            tags+=("java21-${VERSION}-SNAPSHOT")
+            tags+=("java21-SNAPSHOT")
+        fi
+    else
+        tags+=("${DISTRO}-${VERSION}-SNAPSHOT")
+        tags+=("${DISTRO}-SNAPSHOT")
 
-    if [ "${DISTRO}" = "tomcat" ]; then
-        tags+=("${VERSION}-SNAPSHOT")
-        tags+=("SNAPSHOT")
+        if [ "${DISTRO}" = "tomcat" ]; then
+            tags+=("${VERSION}-SNAPSHOT")
+            tags+=("SNAPSHOT")
+        fi
     fi
 else
-    tags+=("${DISTRO}-${VERSION}")
-    if [ "${DISTRO}" = "tomcat" ]; then
-        tags+=("${VERSION}")
+    if [ "${JAVA}" = "21" ]; then
+        tags+=("java21-${DISTRO}-${VERSION}")
+        if [ "${DISTRO}" = "tomcat" ]; then
+            tags+=("java21-${VERSION}")
+        fi
+    else
+        tags+=("${DISTRO}-${VERSION}")
+        if [ "${DISTRO}" = "tomcat" ]; then
+            tags+=("${VERSION}")
+        fi
     fi
 fi
 
@@ -56,10 +81,18 @@ fi
 # The 1st condition matches only when the version branch is the same as the main branch.
 if [ "$(git rev-parse --abbrev-ref HEAD)" = "main" ] && [ "${SNAPSHOT}" = "false" ]; then
     # tagging image as latest only from main branch
-    tags+=("${DISTRO}-latest")
-    tags+=("${DISTRO}")
-    if [ "${DISTRO}" = "tomcat" ]; then
-        tags+=("latest")
+    if [ "${JAVA}" = "21" ]; then
+        tags+=("java21-${DISTRO}-latest")
+        tags+=("java21-${DISTRO}")
+        if [ "${DISTRO}" = "tomcat" ]; then
+            tags+=("java21-latest")
+        fi
+    else
+        tags+=("${DISTRO}-latest")
+        tags+=("${DISTRO}")
+        if [ "${DISTRO}" = "tomcat" ]; then
+            tags+=("latest")
+        fi
     fi
 fi
 
