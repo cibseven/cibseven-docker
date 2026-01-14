@@ -46,18 +46,6 @@ services:
             - "8000:8000"
         restart: unless-stopped
 
-    camunda-prometheus-jmx:
-        image: cibseven/cibseven:${DISTRO}-${PLATFORM}
-        platform: linux/${PLATFORM}
-        environment:
-            - JMX_PROMETHEUS=true
-        ports:
-            - "8080:8080"
-            - "9404:9404"
-        volumes:
-            - $PWD/prometheus-jmx.yml:/camunda/javaagent/prometheus-jmx.yml
-        restart: unless-stopped
-
     camunda-password-file:
         image: cibseven/cibseven:${DISTRO}-${PLATFORM}
         platform: linux/${PLATFORM}
@@ -88,3 +76,29 @@ services:
         environment:
             - POSTGRES_USER=camunda
             - POSTGRES_PASSWORD=camunda
+
+    camunda-opentelemetry:
+        image: cibseven/cibseven:${DISTRO}-${PLATFORM}
+        platform: linux/${PLATFORM}
+        environment:
+            - OTEL_METRICS_EXPORTER=prometheus
+            - OTEL_LOGS_EXPORTER=none
+            - OTEL_TRACES_EXPORTER=otlp
+            - OTEL_EXPORTER_PROMETHEUS_PORT=9464
+            - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+        ports:
+            - "8080:8080"
+            - "9464:9464"
+        depends_on:
+            - otel-collector
+        restart: unless-stopped
+
+    opentelemetry-collector:
+        image: otel/opentelemetry-collector:latest
+        container_name: otel-collector
+        command: ["--config=/etc/otel-collector-config.yaml"]
+        volumes:
+            - ./otel-collector-config.yml:/etc/otelcol/config.yaml
+        ports:
+            - "4318:4318"
+        restart: unless-stopped

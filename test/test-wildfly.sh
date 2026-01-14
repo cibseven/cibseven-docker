@@ -23,4 +23,9 @@ _log "Login successfull"
 
 test_encoding || _exit 7 "Wrong encoding detected"
 
+# Test OpenTelemetry metrics endpoint
+_log "Testing OpenTelemetry metrics endpoint"
+curl -s http://localhost:9464/metrics | grep -q "target_info" || _exit 8 "OpenTelemetry metrics not available"
+_log "OpenTelemetry metrics available"
+
 _exit 0 "Test successfull"

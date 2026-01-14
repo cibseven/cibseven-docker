@@ -91,6 +91,12 @@ mvn dependency:copy -B \
     -Dartifact="org.postgresql:postgresql:${POSTGRESQL_VERSION}:jar" \
     -DoutputDirectory=/tmp/
 
+# download OpenTelemetry Java Agent
+mvn dependency:copy -B \
+    $PROXY \
+    -Dartifact="io.opentelemetry.javaagent:opentelemetry-javaagent:${OPENTELEMETRY_AGENT_VERSION}:jar" \
+    -DoutputDirectory=/tmp/
+
 case ${DISTRO} in
     wildfly*)
         cat <<-EOF > batch.cli
@@ -120,12 +126,7 @@ EOF
         ;;
 esac
 
-# download Prometheus JMX Exporter. 
-# Details on https://blog.camunda.com/post/2019/06/camunda-bpm-on-kubernetes/
-mvn dependency:copy -B \
-    $PROXY \
-    -Dartifact="io.prometheus.jmx:jmx_prometheus_javaagent:${JMX_PROMETHEUS_VERSION}:jar" \
-    -DoutputDirectory=/tmp/
-
+# Install OpenTelemetry Java Agent for all distributions
 mkdir -p /camunda/javaagent
-cp /tmp/jmx_prometheus_javaagent-${JMX_PROMETHEUS_VERSION}.jar /camunda/javaagent/jmx_prometheus_javaagent.jar
+cp /tmp/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar /camunda/javaagent/
+

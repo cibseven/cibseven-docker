@@ -15,10 +15,9 @@ ARG MAVEN_PROXY_PASSWORD
 ARG POSTGRESQL_VERSION
 ARG MYSQL_VERSION
 
-ARG JMX_PROMETHEUS_VERSION=1.0.1
 
 # --- OpenTelemetry Java Agent version argument ---
-ARG OPENTELEMETRY_AGENT_VERSION=2.19.0
+ARG OPENTELEMETRY_AGENT_VERSION=2.23.0
 
 RUN apk add --no-cache \
         bash \
@@ -33,17 +32,12 @@ COPY settings.xml download.sh cibseven-run.sh cibseven-tomcat.sh cibseven-wildfl
 RUN /tmp/download.sh
 COPY wait_for_it-lib.sh /camunda/
 
-# --- Create javaagent directory and download the OpenTelemetry agent ---
-RUN mkdir -p /camunda/javaagent && \
-    wget -O /camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar \
-      https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v${OPENTELEMETRY_AGENT_VERSION}/opentelemetry-javaagent.jar
-
 ##### FINAL IMAGE #####
 
 FROM alpine:3.22
 
 ARG VERSION=2.1.0
-ARG OPENTELEMETRY_AGENT_VERSION=2.19.0
+ARG OPENTELEMETRY_AGENT_VERSION=2.23.0
 ENV OPENTELEMETRY_AGENT_VERSION=$OPENTELEMETRY_AGENT_VERSION
 
 ENV DB_DRIVER=
@@ -65,12 +59,9 @@ ENV JAVA_OPTS=""
 # --- Use OpenTelemetry agent by default ---
 ENV JAVA_TOOL_OPTIONS="-javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar"
 
-ENV JMX_PROMETHEUS=false
-ENV JMX_PROMETHEUS_CONF=/camunda/javaagent/prometheus-jmx.yml
-ENV JMX_PROMETHEUS_PORT=9404
 
 # OpenTelemetry default exporter settings (all exporters disabled, user must configure)
-ENV OTEL_SERVICE_NAME=cibseven-java17 \
+ENV OTEL_SERVICE_NAME=cibseven \
     OTEL_JMX_CONFIG=/camunda/javaagent/jmx_config.yaml,/camunda/javaagent/jmx_custom_config.yaml \
     OTEL_METRICS_EXPORTER=none \
     OTEL_LOGS_EXPORTER=none \
