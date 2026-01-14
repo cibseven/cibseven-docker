@@ -85,17 +85,17 @@ services:
             - OTEL_LOGS_EXPORTER=none
             - OTEL_TRACES_EXPORTER=otlp
             - OTEL_EXPORTER_PROMETHEUS_PORT=9464
-            - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+            - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
         ports:
             - "8080:8080"
             - "9464:9464"
         depends_on:
-            - otel-collector
+            - opentelemetry-collector
         restart: unless-stopped
 
     opentelemetry-collector:
         image: otel/opentelemetry-collector:latest
-        container_name: otel-collector
+        container_name: opentelemetry-collector
         command: ["--config=/etc/otel-collector-config.yaml"]
         volumes:
             - ./otel-collector-config.yml:/etc/otelcol/config.yaml
