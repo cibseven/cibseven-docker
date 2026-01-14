@@ -65,7 +65,6 @@ export PREPEND_JAVA_OPTS="-Djboss.bind.address=0.0.0.0 -Djboss.bind.address.mana
 LOG_MANAGER_PATH=$(find /camunda/modules -name "jboss-logmanager*.jar")
 COMMON_PATH=$(find /camunda/modules -name "wildfly-common*.jar")
 export PREPEND_JAVA_OPTS="${PREPEND_JAVA_OPTS} -Dsun.util.logging.disableCallerCheck=true -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Xbootclasspath/a:$LOG_MANAGER_PATH:$COMMON_PATH -Dotel.javaagent.logging=application"
-export PREPEND_JAVA_OPTS="${PREPEND_JAVA_OPTS} -Dsun.util.logging.disableCallerCheck=true -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Xbootclasspath/a:$LOG_MANAGER_PATH:$COMMON_PATH -Dotel.javaagent.logging=application"
 export LAUNCH_JBOSS_IN_BACKGROUND=TRUE
 
 CMD="/camunda/bin/standalone.sh"
