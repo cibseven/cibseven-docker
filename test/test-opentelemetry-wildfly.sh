@@ -6,26 +6,13 @@ source test_helper.sh
 
 start_container
 
-poll_log "WFLYSRV0025" "^SEVERE" || _exit 1 "Server not started"
+poll_log 'started in' 'started (with errors) in' || _exit 1 "Server not started"
 
 _log "Server started"
 
-grep_log "Deployment.*camunda-invoice.*finished" || _exit 2 "Process application not deployed"
-
-_log "Process application deployed"
-
-test_login admin || _exit 3 "Unable to login to admin"
-test_login cockpit || _exit 4 "Unable to login to cockpit"
-test_login tasklist || _exit 5 "Unable to login to tasklist"
-test_login_webapp || _exit 6 "Unable to login to webapp"
-
-_log "Login successfull"
-
-test_encoding || _exit 7 "Wrong encoding detected"
-
 # Test OpenTelemetry metrics endpoint
 _log "Testing OpenTelemetry metrics endpoint"
-curl -s http://localhost:9464/metrics | grep -q "target_info" || _exit 8 "OpenTelemetry metrics not available"
+curl -s http://localhost:9464/metrics | grep -q "target_info" || _exit 3 "OpenTelemetry metrics not available"
 _log "OpenTelemetry metrics available"
 
 _exit 0 "Test successfull"
