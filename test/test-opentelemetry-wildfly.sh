@@ -4,6 +4,12 @@ SERVICE=${1}
 
 source test_helper.sh
 
+# Increase timeout for WildFly startup
+# Can be overridden by setting JAVA_OPTS before running script
+export JAVA_OPTS="${JAVA_OPTS:--Djboss.as.management. blocking.timeout=600 -Xms1024m -Xmx2048m -XX:MetaspaceSize=256M}"
+
+_log "Using JAVA_OPTS: ${JAVA_OPTS}"
+
 start_container
 
 poll_log 'started in' 'started (with errors) in' || _exit 1 "Server not started"
