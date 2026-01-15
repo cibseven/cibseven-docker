@@ -59,7 +59,6 @@ export JBOSS_MODULES_SYSTEM_PKGS=${JBOSS_MODULES_SYSTEM_PKGS:-"org.jboss.byteman
 
 # Ensure wildfly binds to public interface, preferes IPv4 and runs in the background
 export PREPEND_JAVA_OPTS="-Djboss.bind.address=0.0.0.0 -Djboss.bind.address.management=0.0.0.0 -Djava.net.preferIPv4Stack=true -Djava.awt.headless=true -Djboss.modules.system.pkgs=${JBOSS_MODULES_SYSTEM_PKGS}"
-
 export LAUNCH_JBOSS_IN_BACKGROUND=TRUE
 
 CMD="/camunda/bin/standalone.sh"
