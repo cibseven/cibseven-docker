@@ -60,13 +60,6 @@ export JBOSS_MODULES_SYSTEM_PKGS=${JBOSS_MODULES_SYSTEM_PKGS:-"org.jboss.byteman
 # Ensure wildfly binds to public interface, preferes IPv4 and runs in the background
 export PREPEND_JAVA_OPTS="-Djboss.bind.address=0.0.0.0 -Djboss.bind.address.management=0.0.0.0 -Djava.net.preferIPv4Stack=true -Djava.awt.headless=true -Djboss.modules.system.pkgs=${JBOSS_MODULES_SYSTEM_PKGS}"
 
-# OpenTelemetry Agent configuration
-# Load the agent via PREPEND_JAVA_OPTS (WildFly-specific) instead of JAVA_TOOL_OPTIONS
-# to avoid affecting CLI tools like jboss-cli.sh
-# See https://github.com/prometheus/jmx_exporter/issues/344
-LOG_MANAGER_PATH=$(find /camunda/modules -name "jboss-logmanager*.jar")
-COMMON_PATH=$(find /camunda/modules -name "wildfly-common*.jar")
-export PREPEND_JAVA_OPTS="${PREPEND_JAVA_OPTS} -javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar -Dsun.util.logging.disableCallerCheck=true -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Xbootclasspath/a:$LOG_MANAGER_PATH:$COMMON_PATH -Dotel.javaagent.logging=application"
 export LAUNCH_JBOSS_IN_BACKGROUND=TRUE
 
 CMD="/camunda/bin/standalone.sh"
@@ -76,6 +69,12 @@ if [ "${DEBUG}" = "true" ]; then
   CMD+=" --debug *:8000"
 fi
 
+# JBoss LogManager configuration for OpenTelemetry
+# See https://github.com/prometheus/jmx_exporter/issues/344
+LOG_MANAGER_PATH=$(find /camunda/modules -name "jboss-logmanager*.jar")
+COMMON_PATH=$(find /camunda/modules -name "wildfly-common*.jar")
+export PREPEND_JAVA_OPTS="${PREPEND_JAVA_OPTS} -Dsun.util.logging.disableCallerCheck=true -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Xbootclasspath/a:$LOG_MANAGER_PATH:$COMMON_PATH"
+export PREPEND_JAVA_OPTS="${PREPEND_JAVA_OPTS} -javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar -Dotel.javaagent.logging=application"
 
 wait_for_it
 

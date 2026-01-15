@@ -45,10 +45,6 @@ if [ -z "$SKIP_DB_CONFIG" ]; then
     "${CATALINA_HOME}/conf/server.xml"
 fi
 
-# OpenTelemetry Agent configuration
-# Load the agent via CATALINA_OPTS (Tomcat-specific) instead of JAVA_TOOL_OPTIONS
-export CATALINA_OPTS="${CATALINA_OPTS:-} -javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar"
-
 CMD="${CATALINA_HOME}/bin/catalina.sh"
 if [ "${DEBUG}" = "true" ]; then
   echo "Enabling debug mode, JPDA accesible under port 8000"
@@ -56,6 +52,9 @@ if [ "${DEBUG}" = "true" ]; then
   CMD+=" jpda"
 fi
 
+# OpenTelemetry Agent configuration
+# Load the agent via CATALINA_OPTS (Tomcat-specific) instead of JAVA_TOOL_OPTIONS
+export CATALINA_OPTS="${CATALINA_OPTS:-} -javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar"
 
 CMD+=" run"
 

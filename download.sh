@@ -129,4 +129,3 @@ esac
 # Install OpenTelemetry Java Agent for all distributions
 mkdir -p /camunda/javaagent
 cp /tmp/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar /camunda/javaagent/
-
