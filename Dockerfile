@@ -66,12 +66,11 @@ ENV DEBUG=false
 ENV JAVA_OPTS=""
 
 # --- Use OpenTelemetry agent by default ---
-#ENV JAVA_TOOL_OPTIONS="-javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar"
+ENV JAVA_TOOL_OPTIONS="-javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar"
 
 
 # OpenTelemetry default exporter settings (all exporters disabled, user must configure)
 ENV OTEL_SERVICE_NAME=cibseven \
-    OTEL_JMX_CONFIG=/camunda/javaagent/jmx_config.yaml,/camunda/javaagent/jmx_custom_config.yaml \
     OTEL_METRICS_EXPORTER=none \
     OTEL_LOGS_EXPORTER=none \
     OTEL_TRACES_EXPORTER=none \
