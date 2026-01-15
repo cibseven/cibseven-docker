@@ -1,0 +1,16 @@
+services:
+    
+
+    camunda-opentelemetry:
+        image: cibseven-otel-wildfly:latest
+
+        environment:
+            - OTEL_METRICS_EXPORTER=prometheus
+            - OTEL_LOGS_EXPORTER=none
+            - OTEL_TRACES_EXPORTER=otlp
+            - OTEL_EXPORTER_PROMETHEUS_PORT=9464
+            - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
+        ports:
+            - "8080:8080"
+            - "9464:9464"
+        restart: unless-stopped
