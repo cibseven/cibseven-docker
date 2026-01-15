@@ -71,6 +71,7 @@ ENV JAVA_OPTS=""
 # CATALINA_OPTS for Tomcat) to avoid affecting CLI tools like jboss-cli.sh
 ENV OTEL_SERVICE_NAME=cibseven \
     OTEL_JMX_CONFIG=/camunda/javaagent/jmx_config.yaml,/camunda/javaagent/jmx_custom_config.yaml \
+    OTEL_LOG_LEVEL=error \
     OTEL_METRICS_EXPORTER=none \
     OTEL_LOGS_EXPORTER=none \
     OTEL_TRACES_EXPORTER=none \
