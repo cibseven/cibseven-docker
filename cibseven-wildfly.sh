@@ -31,7 +31,8 @@ embed-server
 run-batch
 stop-embedded-server
 EOF
-  /camunda/bin/jboss-cli.sh --file=batch.cli
+  # Disable OpenTelemetry agent for CLI tool (not needed and causes issues on ARM64)
+  JAVA_TOOL_OPTIONS="" /camunda/bin/jboss-cli.sh --file=batch.cli
   rm -rf /camunda/standalone/configuration/standalone_xml_history/current/* batch.cli
 }
 
