@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 RETRIES=100
-WAIT=10
+WAIT=5
 
 GHA=${GITHUB_ACTIONS:-false}
 if [ "${GHA}" = "true" ]; then

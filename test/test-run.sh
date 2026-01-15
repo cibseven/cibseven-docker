@@ -24,5 +24,4 @@ _log "Login successfull"
 # Disabled encoding test ...
 # test_encoding || _exit 7 "Wrong encoding detected"
 
-
 _exit 0 "Test successfull"

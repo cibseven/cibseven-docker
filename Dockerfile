@@ -39,6 +39,7 @@ COPY settings.xml download.sh cibseven-run.sh cibseven-tomcat.sh cibseven-wildfl
 RUN /tmp/download.sh
 COPY wait_for_it-lib.sh /camunda/
 
+
 ##### FINAL IMAGE #####
 
 FROM alpine:3.23
