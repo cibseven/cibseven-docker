@@ -65,11 +65,9 @@ ENV TZ=UTC
 ENV DEBUG=false
 ENV JAVA_OPTS=""
 
-# --- Use OpenTelemetry agent by default ---
-ENV JAVA_TOOL_OPTIONS="-javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar"
-
-
 # OpenTelemetry default exporter settings (all exporters disabled, user must configure)
+# Note: The OTEL agent is loaded via server-specific variables (PREPEND_JAVA_OPTS for WildFly,
+# CATALINA_OPTS for Tomcat) to avoid affecting CLI tools like jboss-cli.sh
 ENV OTEL_SERVICE_NAME=cibseven \
     OTEL_JMX_CONFIG=/camunda/javaagent/jmx_config.yaml,/camunda/javaagent/jmx_custom_config.yaml \
     OTEL_METRICS_EXPORTER=none \
