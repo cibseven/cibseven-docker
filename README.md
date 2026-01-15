@@ -107,8 +107,7 @@ when provided:
 * `DB_URL`
 * `DB_PASSWORD_FILE`
 
-The `JMX_PROMETHEUS` configuration is not supported, and while `DEBUG` can be 
-used to enable debug output, it doesn't start a debug socket.
+While `DEBUG` can be used to enable debug output, it doesn't start a debug socket.
 
 `run` supports different startup options to choose whether or not to enable the 
 WebApps, the REST API or Swagger UI. By default, all three are enabled.
@@ -278,14 +277,59 @@ To enable JPDA inside the container, you can set the environment variable
 container on port `8000` to debug your application.
 This is only supported for `wildfly` and `tomcat` distributions.
 
-### Prometheus JMX Exporter
+### OpenTelemetry Agent
 
-To enable Prometheus JMX Exporter inside the container, you can set the 
-environment variable `JMX_PROMETHEUS=true` on startup of the container. 
-This will allow you to get metrics in Prometheus format at `<host>:9404/metrics`. 
-For configuring exporter you need attach your configuration as a container volume 
-at `/camunda/javaagent/prometheus-jmx.yml`. This is only supported for `wildfly` 
-and `tomcat` distributions.
+The CIB seven Docker images come with OpenTelemetry Java-Agent pre-installed. The agent automatically instruments your application to generate telemetry data (metrics, traces, and logs), but all exporters are disabled by default. You need to configure at least one exporter to provide telemetry data.
+
+#### Configuration
+
+The OpenTelemetry Agent can be configured using environment variables. 
+
+**Available Environment Variables:**
+
+* `OTEL_SERVICE_NAME`: Service name for telemetry data (default: `cibseven`)
+* `OTEL_METRICS_EXPORTER`: Configure metrics exporter (e.g., `prometheus`, `otlp`)
+* `OTEL_TRACES_EXPORTER`: Configure traces exporter (e.g., `otlp`, `jaeger`)
+* `OTEL_LOGS_EXPORTER`: Configure logs exporter (e.g., `otlp`) - **Note:** CIB seven uses log4j2 for application logging, so this is typically not needed
+* `OTEL_EXPORTER_PROMETHEUS_PORT`: Port for Prometheus metrics exporter (default: `9464`)
+* `OTEL_EXPORTER_OTLP_ENDPOINT`: Endpoint for OTLP exporter (e.g., `http://otel-collector:4318`)
+
+
+#### JMX Metrics
+
+The OpenTelemetry Agent provides access to JVM metrics through JMX. You can customize JMX metrics collection by mounting a custom configuration file:
+
+```bash
+docker run -d --name cibseven -p 8080:8080 -p 9464:9464 \
+           -e OTEL_METRICS_EXPORTER=prometheus \
+           -e OTEL_EXPORTER_PROMETHEUS_PORT=9464 \
+           -v $(pwd)/custom_jmx_config.yaml:/camunda/javaagent/jmx_custom_config.yaml \
+           cibseven/cibseven:latest
+```
+
+#### Example with Docker Compose
+
+See the `test/docker-compose.yml` file for a complete example. Use the `camunda-opentelemetry` service that includes:
+- CIB seven with Prometheus metrics exporter and OTLP traces
+- OpenTelemetry Collector for receiving and processing telemetry data
+
+```bash
+cd test
+docker-compose up camunda-opentelemetry opentelemetry-collector
+```
+
+This will start CIB seven with metrics available at `http://localhost:9464/metrics` and an OpenTelemetry Collector that receives telemetry data on port 4318.
+
+#### Custom JMX Configuration
+
+You can create custom JMX metric rules by creating a YAML configuration file. See `opentelemetry/jmx_config.yaml` for an example that collects extended JVM metrics including CPU, memory, and file descriptor usage.
+
+#### Further Reading
+
+* [OpenTelemetry Java Agent Documentation](https://opentelemetry.io/docs/instrumentation/java/automatic/)
+* [OpenTelemetry Java Agent GitHub Repository](https://github.com/open-telemetry/opentelemetry-java-instrumentation)
+* [OpenTelemetry Configuration](https://opentelemetry.io/docs/concepts/sdk-configuration/)
+* [JMX Metrics Collection](https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/main/instrumentation/jmx-metrics)
 
 ### Change timezone
 

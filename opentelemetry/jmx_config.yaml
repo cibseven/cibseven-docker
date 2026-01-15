@@ -1,0 +1,80 @@
+rules:
+    # Config from: https://github.com/open-telemetry/opentelemetry-java-instrumentation/blob/main/instrumentation/jmx-metrics/library/src/main/resources/jmx/rules/jvm.yaml
+    # Extended for CIB: MaxFileDescriptorCount, TotalSwapSpaceSize, FreeSwapSpaceSize, TotalPhysicalMemorySize, FreePhysicalMemorySize, CommittedVirtualMemorySize
+  - bean: java.lang:type=OperatingSystem
+    prefix: os.
+    dropNegativeValues: true
+    mapping:
+      # os.cpu.count
+      AvailableProcessors:
+        metric: cpu.count
+        type: updowncounter
+        unit: "{cpu}"
+        desc: Number of processors available to the Java virtual machine.
+      # os.cpu.time
+      ProcessCpuTime:
+        metric: cpu.time
+        type: counter
+        sourceUnit: ns
+        unit: s
+        desc: CPU time used by the process as reported by the JVM.
+      # os.cpu.recent_utilization
+      ProcessCpuLoad:
+        metric: cpu.recent_utilization
+        type: gauge
+        unit: '1'
+        desc: Recent CPU utilization for the process as reported by the JVM.
+      # os.system.cpu.load_1m (experimental)
+      SystemLoadAverage:
+        metric: system.cpu.load_1m
+        type: gauge
+        unit: "{run_queue_item}"
+        desc: Average CPU load of the whole system for the last minute as reported by the JVM.
+      # os.system.cpu.utilization (experimental)
+      SystemCpuLoad:
+        metric: system.cpu.utilization
+        type: gauge
+        unit: '1'
+        desc: Recent CPU utilization for the whole system as reported by the JVM.
+      # os.file_descriptor.open.count (experimental)
+      OpenFileDescriptorCount:
+        metric: file_descriptor.open.count
+        type: updowncounter
+        unit: "{file_descriptor}"
+        desc: Number of open file descriptors as reported by the JVM.
+      # os.file_descriptor.max.count
+      MaxFileDescriptorCount:
+        metric: file_descriptor.max.count
+        type: updowncounter
+        unit: "{file_descriptor}"
+        desc: Number of max file descriptors as reported by the JVM.
+      # virtual_memory.committed.size
+      CommittedVirtualMemorySize:
+        metric: virtual_memory.committed.size
+        type: gauge
+        unit: 'By'
+        desc: Size of CommittedVirtualMemorySize.
+      # os.physical_memory.free.size
+      FreePhysicalMemorySize:
+        metric: physical_memory.free.size
+        type: gauge
+        unit: 'By'
+        desc: Size of FreePhysicalMemorySize.
+      # os.physical_memory.total.size
+      TotalPhysicalMemorySize:
+        metric: physical_memory.total.size
+        type: gauge
+        unit: 'By'
+        desc: Size of TotalPhysicalMemorySize.
+      # os.swap_space.free.size
+      FreeSwapSpaceSize:
+        metric: swap_space.free.size
+        type: gauge
+        unit: 'By'
+        desc: Size of FreeSwapSpaceSize.
+      # os.swap_space.total.size
+      TotalSwapSpaceSize:
+        metric: swap_space.total.size
+        type: gauge
+        unit: 'By'
+        desc: Size of TotalSwapSpaceSize.
