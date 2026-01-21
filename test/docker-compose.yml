@@ -86,6 +86,7 @@ services:
             - OTEL_TRACES_EXPORTER=otlp
             - OTEL_EXPORTER_PROMETHEUS_PORT=9464
             - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
+            - JAVA_OPTS=-Dotel.javaagent.logging=simple
         ports:
             - "8080:8080"
             - "9464:9464"
