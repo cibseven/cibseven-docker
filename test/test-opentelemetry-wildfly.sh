@@ -6,7 +6,7 @@ source test_helper.sh
 
 # Increase timeout for WildFly startup
 # Can be overridden by setting JAVA_OPTS before running script
-export JAVA_OPTS="${JAVA_OPTS:--Djboss.as.management.blocking.timeout=600 -Xms1024m -Xmx2048m -XX:MetaspaceSize=256M -Dotel.javaagent.logging=simple}"
+export JAVA_OPTS="${JAVA_OPTS:--Dotel.javaagent.logging=simple -Xms1024m -Xmx2048m -XX:MetaspaceSize=256M}"
 
 _log "Using JAVA_OPTS: ${JAVA_OPTS}"
 
