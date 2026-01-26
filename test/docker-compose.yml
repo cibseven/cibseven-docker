@@ -41,6 +41,7 @@ services:
         platform: linux/${PLATFORM}
         environment:
             - DEBUG=true
+            - OTEL_JAVAAGENT_LOGGING_LEVEL=warn
             - JAVA_TOOL_OPTIONS=-Dotel.javaagent.logging=simple
         ports:
             - "8080:8080"
