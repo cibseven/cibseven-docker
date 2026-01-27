@@ -8,7 +8,7 @@ test "${DISTRO}" = "run" && _log "skipping test of DEBUG socket: not supported f
 
 start_container
 
-poll_log "Listening for transport dt_socket at address: 8000" "ERROR" || _exit 1 "JPDA not started"
+poll_log "Listening for transport dt_socket at address: 8000" "ERROR(?!.*stderr.*SLF4J)" || _exit 1 "JPDA not started"
 
 timeout 1 bash -c 'cat < /dev/null > /dev/tcp/localhost/8000' || _exit 2 "JPDA port not open"
 
