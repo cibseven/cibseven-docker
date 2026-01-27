@@ -42,7 +42,8 @@ services:
         environment:
             - DEBUG=true
             - OTEL_JAVAAGENT_LOGGING_LEVEL=warn            
-            - JAVA_TOOL_OPTIONS=-Dotel.javaagent.logging=simple
+            - JAVA_OPTS=-Dotel.javaagent.logging=simple
+            - PRESERVE_JAVA_OPTS=true
         ports:
             - "8080:8080"
             - "8000:8000"
