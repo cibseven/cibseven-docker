@@ -41,7 +41,7 @@ services:
         platform: linux/${PLATFORM}
         environment:
             - DEBUG=true        
-            - JAVA_OPTS=-Dotel.javaagent.logging.level=warn -Xms512m -Xmx768m -XX:MetaspaceSize=128M -XX:MaxMetaspaceSize=256m
+            - JAVA_OPTS=-Dotel.javaagent.version.logging.enabled=false -Xms512m -Xmx768m -XX:MetaspaceSize=128M -XX:MaxMetaspaceSize=256m
         ports:
             - "8080:8080"
             - "8000:8000"
@@ -87,7 +87,7 @@ services:
             - OTEL_TRACES_EXPORTER=otlp
             - OTEL_EXPORTER_PROMETHEUS_PORT=9464
             - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
-            - JAVA_OPTS=-Dotel.javaagent.logging.level=warn -Xms512m -Xmx768m -XX:MetaspaceSize=128M -XX:MaxMetaspaceSize=256m
+            - JAVA_OPTS=-Dotel.javaagent.version.logging.enabled=false -Xms512m -Xmx768m -XX:MetaspaceSize=128M -XX:MaxMetaspaceSize=256m
         ports:
             - "8080:8080"
             - "9464:9464"
