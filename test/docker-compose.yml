@@ -40,10 +40,8 @@ services:
         image: cibseven/cibseven:${IMAGE_TAG:-${DISTRO}-${PLATFORM}}
         platform: linux/${PLATFORM}
         environment:
-            - DEBUG=true
-            - OTEL_JAVAAGENT_LOGGING_LEVEL=warn            
-            - JAVA_OPTS=-Dotel.javaagent.logging=simple
-            - PRESERVE_JAVA_OPTS=true
+            - DEBUG=true        
+            - JAVA_OPTS=-Dotel.javaagent.logging.level=warn -Dotel.javaagent.logging=simple -Xms512m -Xmx768m -XX:MetaspaceSize=128M -XX:MaxMetaspaceSize=256m -Djava.net.preferIPv4Stack=true
         ports:
             - "8080:8080"
             - "8000:8000"
