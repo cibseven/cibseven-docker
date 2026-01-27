@@ -41,7 +41,7 @@ services:
         platform: linux/${PLATFORM}
         environment:
             - DEBUG=true        
-            - JAVA_OPTS=-Dotel.javaagent.logging.level=warn -Dotel.javaagent.logging=simple -Xms512m -Xmx768m -XX:MetaspaceSize=128M -XX:MaxMetaspaceSize=256m -Djava.net.preferIPv4Stack=true
+            - JAVA_OPTS=-Dotel.javaagent.logging.level=warn -Xms512m -Xmx768m -XX:MetaspaceSize=128M -XX:MaxMetaspaceSize=256m
         ports:
             - "8080:8080"
             - "8000:8000"
