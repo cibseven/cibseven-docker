@@ -41,8 +41,6 @@ services:
         platform: linux/${PLATFORM}
         environment:
             - DEBUG=true
-            - OTEL_JAVAAGENT_LOGGING_LEVEL=warn
-            - JAVA_TOOL_OPTIONS=-Dotel.javaagent.logging=simple
         ports:
             - "8080:8080"
             - "8000:8000"
@@ -88,7 +86,6 @@ services:
             - OTEL_TRACES_EXPORTER=otlp
             - OTEL_EXPORTER_PROMETHEUS_PORT=9464
             - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
-            - JAVA_TOOL_OPTIONS=-Dotel.javaagent.logging=simple
         ports:
             - "8080:8080"
             - "9464:9464"
