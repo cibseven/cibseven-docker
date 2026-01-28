@@ -1,5 +1,6 @@
 ARG VERSION=2.2.0
 ARG JAVA=17
+ARG OPENTELEMETRY_AGENT_VERSION=2.23.0
 
 FROM alpine:3.23 as builder
 
@@ -19,7 +20,10 @@ ARG MAVEN_PROXY_PASSWORD
 ARG POSTGRESQL_VERSION
 ARG MYSQL_VERSION
 
-ARG JMX_PROMETHEUS_VERSION=1.0.1
+
+# --- OpenTelemetry Java Agent version argument ---
+# Re-declare to use in this stage (inherits the value from global)
+ARG OPENTELEMETRY_AGENT_VERSION
 
 RUN apk add --no-cache \
         bash \
@@ -44,6 +48,8 @@ FROM alpine:3.23
 # Re-declare to use in this stage (inherits the value from global)
 ARG VERSION
 ARG JAVA
+ARG OPENTELEMETRY_AGENT_VERSION
+ENV OPENTELEMETRY_AGENT_VERSION=${OPENTELEMETRY_AGENT_VERSION}
 
 ENV DB_DRIVER=
 ENV DB_URL=
@@ -60,11 +66,19 @@ ENV WAIT_FOR_TIMEOUT=30
 ENV TZ=UTC
 ENV DEBUG=false
 ENV JAVA_OPTS=""
-ENV JMX_PROMETHEUS=false
-ENV JMX_PROMETHEUS_CONF=/camunda/javaagent/prometheus-jmx.yml
-ENV JMX_PROMETHEUS_PORT=9404
 
-EXPOSE 8080 8000 9404
+# OpenTelemetry default exporter settings (all exporters disabled, user must configure)
+# Note: The OTEL agent is loaded via server-specific variables (PREPEND_JAVA_OPTS for WildFly,
+# CATALINA_OPTS for Tomcat) to avoid affecting CLI tools like jboss-cli.sh
+ENV OTEL_SERVICE_NAME=cibseven \
+    OTEL_JMX_CONFIG=/camunda/javaagent/jmx_config.yaml,/camunda/javaagent/jmx_custom_config.yaml \
+    OTEL_LOG_LEVEL=error \
+    OTEL_METRICS_EXPORTER=none \
+    OTEL_LOGS_EXPORTER=none \
+    OTEL_TRACES_EXPORTER=none \
+    OTEL_EXPORTER_PROMETHEUS_PORT=9464
+
+EXPOSE 8080 8000 9404 9464
 
 # Downgrading wait-for-it is necessary until this PR is merged
 # https://github.com/vishnubob/wait-for-it/pull/68
@@ -91,3 +105,7 @@ ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["./cibseven.sh"]
 
 COPY --chown=camunda:camunda --from=builder /camunda .
+
+# --- Add JMX config files (ensure these are present in your build context) ---
+COPY opentelemetry/jmx_config.yaml /camunda/javaagent/jmx_config.yaml
+COPY opentelemetry/jmx_custom_config.yaml /camunda/javaagent/jmx_custom_config.yaml
