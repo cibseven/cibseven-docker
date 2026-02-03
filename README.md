@@ -297,15 +297,19 @@ The OpenTelemetry Agent can be configured using environment variables.
 
 #### JMX Metrics
 
-The OpenTelemetry Agent provides access to JVM metrics through JMX. You can customize JMX metrics collection by mounting a custom configuration file:
+The OpenTelemetry Agent provides access to JVM metrics through JMX. By default, the image includes extended JVM metrics (CPU, memory, GC, threads, file descriptors). 
+
+You can add custom JMX metrics by mounting your own configuration file to `/camunda/javaagent/jmx_custom_config.yaml`. For configuration syntax examples, see the pre-configured `opentelemetry/jmx_config.yaml` in this repository or the [OpenTelemetry JMX Metrics documentation](https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/main/instrumentation/jmx-metrics).
 
 ```bash
 docker run -d --name cibseven -p 8080:8080 -p 9464:9464 \
            -e OTEL_METRICS_EXPORTER=prometheus \
            -e OTEL_EXPORTER_PROMETHEUS_PORT=9464 \
-           -v $(pwd)/custom_jmx_config.yaml:/camunda/javaagent/jmx_custom_config.yaml \
+           -v $(pwd)/my_custom_jmx_config.yaml:/camunda/javaagent/jmx_custom_config.yaml \
            cibseven/cibseven:latest
 ```
+
+**Note:** Create your own `my_custom_jmx_config.yaml` file before mounting it. The image already contains a default `/camunda/javaagent/jmx_custom_config.yaml` which you can override.
 
 #### Example with Docker Compose
 
