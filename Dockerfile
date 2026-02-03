@@ -77,7 +77,7 @@ ENV OTEL_SERVICE_NAME=cibseven \
     OTEL_TRACES_EXPORTER=none \
     OTEL_EXPORTER_PROMETHEUS_PORT=9464
 
-EXPOSE 8080 8000 9404 9464
+EXPOSE 8080 8000 9464
 
 # Downgrading wait-for-it is necessary until this PR is merged
 # https://github.com/vishnubob/wait-for-it/pull/68
