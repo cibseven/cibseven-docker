@@ -72,6 +72,7 @@ ENV JAVA_OPTS=""
 ENV OTEL_SERVICE_NAME=cibseven \
     OTEL_JMX_CONFIG=/camunda/javaagent/jmx_config.yaml,/camunda/javaagent/jmx_custom_config.yaml \
     OTEL_LOG_LEVEL=error \
+    OTEL_JAVAAGENT_LOGGING=application \
     OTEL_METRICS_EXPORTER=none \
     OTEL_LOGS_EXPORTER=none \
     OTEL_TRACES_EXPORTER=none \
@@ -105,5 +106,5 @@ CMD ["./cibseven.sh"]
 COPY --chown=camunda:camunda --from=builder /camunda .
 
 # --- Add JMX config files (ensure these are present in your build context) ---
-COPY opentelemetry/jmx_config.yaml /camunda/javaagent/jmx_config.yaml
-COPY opentelemetry/jmx_custom_config.yaml /camunda/javaagent/jmx_custom_config.yaml
+COPY --chown=camunda:camunda opentelemetry/jmx_config.yaml /camunda/javaagent/jmx_config.yaml
+COPY --chown=camunda:camunda opentelemetry/jmx_custom_config.yaml /camunda/javaagent/jmx_custom_config.yaml

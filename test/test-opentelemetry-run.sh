@@ -12,7 +12,7 @@ _log "Server started"
 
 # Test OpenTelemetry metrics endpoint
 _log "Testing OpenTelemetry metrics endpoint"
-curl -s http://localhost:9464/metrics | grep -q "target_info" || _exit 8 "OpenTelemetry metrics not available"
+curl -s http://localhost:9464/metrics | grep -q "target_info" || _exit 3 "OpenTelemetry metrics not available"
 _log "OpenTelemetry metrics available"
 
-_exit 0 "Test successfull"
+_exit 0 "Test successful"

@@ -290,7 +290,7 @@ The OpenTelemetry Agent can be configured using environment variables.
 * `OTEL_SERVICE_NAME`: Service name for telemetry data (default: `cibseven`)
 * `OTEL_METRICS_EXPORTER`: Configure metrics exporter (default: `none`, examples: `prometheus`, `otlp`)
 * `OTEL_TRACES_EXPORTER`: Configure traces exporter (default: `none`, example: `otlp`)
-* `OTEL_LOGS_EXPORTER`: Configure logs exporter (default: `none`, example: `otlp`) - **Note:** CIB seven uses log4j2 for application logging, so this is typically not needed
+* `OTEL_LOGS_EXPORTER`: Configure logs exporter (default: `none`, example: `otlp`) - **Note:** CIB seven uses a logging framework for application logging, so this is typically not needed
 * `OTEL_EXPORTER_PROMETHEUS_PORT`: Port for Prometheus metrics exporter (default: `9464`)
 * `OTEL_EXPORTER_OTLP_ENDPOINT`: Endpoint for OTLP exporter (default: `http://localhost:4318`, example: `http://otel-collector:4318`)
 * `OTEL_LOG_LEVEL`: OpenTelemetry agent log level (default: `error`, options: `error`, `warn`, `info`, `debug`)

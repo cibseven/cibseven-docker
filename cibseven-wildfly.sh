@@ -73,7 +73,7 @@ fi
 LOG_MANAGER_PATH=$(find /camunda/modules -name "jboss-logmanager*.jar")
 COMMON_PATH=$(find /camunda/modules -name "wildfly-common*.jar")
 export PREPEND_JAVA_OPTS="${PREPEND_JAVA_OPTS} -Dsun.util.logging.disableCallerCheck=true -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Xbootclasspath/a:$LOG_MANAGER_PATH:$COMMON_PATH"
-export PREPEND_JAVA_OPTS="${PREPEND_JAVA_OPTS} -javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar -Dotel.javaagent.logging=application"
+export PREPEND_JAVA_OPTS="${PREPEND_JAVA_OPTS} -javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar"
 
 wait_for_it
 
