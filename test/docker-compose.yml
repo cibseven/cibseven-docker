@@ -94,8 +94,7 @@ services:
         restart: unless-stopped
 
     opentelemetry-collector:
-        image: otel/opentelemetry-collector:latest
-        container_name: opentelemetry-collector
+        image: otel/opentelemetry-collector:0.145.0
         command: ["--config=/etc/otel-collector-config.yml"]
         volumes:
             - ./otel-collector-config.yml:/etc/otel-collector-config.yml
