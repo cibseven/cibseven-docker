@@ -285,16 +285,27 @@ The CIB seven Docker images come with OpenTelemetry Java-Agent pre-installed. Th
 
 The OpenTelemetry Agent can be configured using environment variables. 
 
-**Available Environment Variables:**
+**Pre-configured Environment Variables (from Dockerfile):**
 
 * `OTEL_SERVICE_NAME`: Service name for telemetry data (default: `cibseven`)
 * `OTEL_METRICS_EXPORTER`: Configure metrics exporter (default: `none`, examples: `prometheus`, `otlp`)
 * `OTEL_TRACES_EXPORTER`: Configure traces exporter (default: `none`, example: `otlp`)
 * `OTEL_LOGS_EXPORTER`: Configure logs exporter (default: `none`, example: `otlp`) - **Note:** CIB seven uses a logging framework for application logging, so this is typically not needed
 * `OTEL_EXPORTER_PROMETHEUS_PORT`: Port for Prometheus metrics exporter (default: `9464`)
-* `OTEL_EXPORTER_OTLP_ENDPOINT`: Endpoint for OTLP exporter (default: `http://localhost:4318`, example: `http://otel-collector:4318`)
-* `OTEL_LOG_LEVEL`: OpenTelemetry agent log level (default: `error`, options: `error`, `warn`, `info`, `debug`)
+* `OTEL_JAVAAGENT_LOGGING`: OpenTelemetry agent logging mode (default: `application`)
 * `OTEL_JMX_CONFIG`: JMX metrics configuration files (default: `/camunda/javaagent/jmx_config.yaml,/camunda/javaagent/jmx_custom_config.yaml`)
+
+**Additional Configuration for Metrics Export:**
+
+* **Prometheus:** Set `OTEL_METRICS_EXPORTER=prometheus` (metrics available at port 9464)
+* **OTLP:** Set `OTEL_METRICS_EXPORTER=otlp` and `OTEL_EXPORTER_OTLP_ENDPOINT=http://your-collector:4318`
+
+**Additional Configuration for Trace Export:**
+
+* Set `OTEL_TRACES_EXPORTER=otlp`
+* Set `OTEL_EXPORTER_OTLP_ENDPOINT=http://your-collector:4318`
+
+For a complete list of available configuration options, see the [OpenTelemetry Configuration](https://opentelemetry.io/docs/concepts/sdk-configuration/) documentation.
 
 
 #### JMX Metrics
