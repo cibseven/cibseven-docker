@@ -72,6 +72,7 @@ ENV JAVA_OPTS=""
 ENV OTEL_SERVICE_NAME=cibseven \
     OTEL_JMX_CONFIG=/camunda/javaagent/jmx_config.yaml,/camunda/javaagent/jmx_custom_config.yaml \
     OTEL_JAVAAGENT_LOGGING=application \
+    OTEL_LOG_LEVEL=error \
     OTEL_METRICS_EXPORTER=none \
     OTEL_LOGS_EXPORTER=none \
     OTEL_TRACES_EXPORTER=none \
