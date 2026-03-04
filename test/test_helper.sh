@@ -83,3 +83,43 @@ function test_encoding {
   curl --fail -w "\n" http://localhost:8080/engine-rest/deployment/create -F deployment-name=testEncoding -F testEncoding.bpmn=@testEncoding.bpmn
   curl --fail -w "\n" -H "Content-Type: application/json" -d '{}'  http://localhost:8080/engine-rest/process-definition/key/testEncoding/start
 }
+
+# Expected Prometheus metric names from opentelemetry/jmx_config.yaml (prefix os. + mapping metrics, dots -> underscores).
+EXPECTED_JMX_METRICS=(
+  os_cpu_count
+  os_cpu_time
+  os_cpu_recent_utilization
+  os_system_cpu_load_1m
+  os_system_cpu_utilization
+  os_file_descriptor_open_count
+  os_file_descriptor_max_count
+  os_virtual_memory_committed_size
+  os_physical_memory_free_size
+  os_physical_memory_total_size
+  os_swap_space_free_size
+  os_swap_space_total_size
+)
+
+# Verifies that all expected JMX metrics are present on the Prometheus metrics endpoint.
+# Usage: assert_jmx_metrics [metrics_url]
+# Default metrics_url: http://localhost:9464/metrics
+function assert_jmx_metrics {
+  local metrics_url="${1:-http://localhost:9464/metrics}"
+  local metrics_output
+  local missing=""
+
+  metrics_output=$(curl -s --fail "$metrics_url") || { _log "Failed to fetch $metrics_url"; return 1; }
+
+  for prometheus_name in "${EXPECTED_JMX_METRICS[@]}"; do
+    if ! echo "$metrics_output" | grep -qE "(^|[[:space:]])${prometheus_name}([{\s]|$)"; then
+      [ -n "$missing" ] && missing="$missing, "
+      missing="${missing}${prometheus_name}"
+    fi
+  done
+
+  if [ -n "$missing" ]; then
+    _log "Missing expected JMX metrics: $missing"
+    return 1
+  fi
+  return 0
+}
