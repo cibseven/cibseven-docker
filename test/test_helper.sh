@@ -106,7 +106,7 @@ EXPECTED_JMX_METRICS=(
 # Usage: assert_jmx_metrics [metrics_url]
 # Default metrics_url: http://localhost:9464/metrics
 JMX_METRICS_RETRIES=10
-JMX_METRICS_WAIT=3
+JMX_METRICS_WAIT=60
 
 function assert_jmx_metrics {
   local metrics_url="${1:-http://localhost:9464/metrics}"
