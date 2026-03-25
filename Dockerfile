@@ -31,7 +31,8 @@ RUN apk add --no-cache \
         c-ares=1.34.6-r0 \
         libtasn1=4.21.0-r0 \
         libcrypto3=3.5.5-r0 \
-        libssl3=3.5.5-r0
+        libssl3=3.5.5-r0 \
+        zlib=1.3.2-r0
 
 COPY settings.xml download.sh cibseven-run.sh cibseven-tomcat.sh cibseven-wildfly.sh  /tmp/
 
@@ -82,6 +83,7 @@ RUN apk add --no-cache \
         libtasn1=4.21.0-r0 \
         libcrypto3=3.5.5-r0 \
         libssl3=3.5.5-r0 \
+        zlib=1.3.2-r0 \
     && curl -o /usr/local/bin/wait-for-it.sh \
       "https://raw.githubusercontent.com/vishnubob/wait-for-it/a454892f3c2ebbc22bd15e446415b8fcb7c1cfa4/wait-for-it.sh" \
     && chmod +x /usr/local/bin/wait-for-it.sh
