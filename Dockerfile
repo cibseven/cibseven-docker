@@ -30,7 +30,7 @@ RUN apk add --no-cache \
         xmlstarlet \
         zlib=1.3.2-r0
 
-COPY settings.xml download.sh cibseven-run.sh cibseven-tomcat.sh cibseven-wildfly.sh  /tmp/
+COPY settings.xml download.sh cibseven-run.sh cibseven-tomcat.sh cibseven-wildfly.sh wait-for-it.sh /tmp/
 
 RUN /tmp/download.sh
 COPY wait_for_it-lib.sh /camunda/
@@ -65,8 +65,6 @@ ENV JMX_PROMETHEUS_PORT=9404
 
 EXPOSE 8080 8000 9404
 
-# Downgrading wait-for-it is necessary until this PR is merged
-# https://github.com/vishnubob/wait-for-it/pull/68
 RUN apk add --no-cache \
         bash \
         ca-certificates \
@@ -75,10 +73,10 @@ RUN apk add --no-cache \
         tzdata \
         tini \
         xmlstarlet \
-        zlib=1.3.2-r0 \
-    && curl -o /usr/local/bin/wait-for-it.sh \
-      "https://raw.githubusercontent.com/vishnubob/wait-for-it/a454892f3c2ebbc22bd15e446415b8fcb7c1cfa4/wait-for-it.sh" \
-    && chmod +x /usr/local/bin/wait-for-it.sh
+        zlib=1.3.2-r0
+
+COPY --from=builder /tmp/wait-for-it.sh /usr/local/bin/wait-for-it.sh
+RUN chmod +x /usr/local/bin/wait-for-it.sh
 
 RUN addgroup -g 1000 -S camunda && \
     adduser -u 1000 -S camunda -G camunda -h /camunda -s /bin/bash -D camunda
