@@ -1,0 +1,6 @@
+# Custom JMX Metrics Configuration
+#
+# This file can be overridden by mounting your own configuration:
+#   -v $(pwd)/my_custom_jmx_config.yaml:/camunda/javaagent/jmx_custom_config.yaml
+#
+# For configuration syntax and examples, see jmx_config.yaml

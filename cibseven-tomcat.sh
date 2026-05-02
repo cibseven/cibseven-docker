@@ -52,11 +52,9 @@ if [ "${DEBUG}" = "true" ]; then
   CMD+=" jpda"
 fi
 
-if [ "$JMX_PROMETHEUS" = "true" ] ; then
-  echo "Enabling Prometheus JMX Exporter on port ${JMX_PROMETHEUS_PORT}"
-  [ ! -f "$JMX_PROMETHEUS_CONF" ] && touch "$JMX_PROMETHEUS_CONF"
-  export CATALINA_OPTS="${CATALINA_OPTS:=} -javaagent:/camunda/javaagent/jmx_prometheus_javaagent.jar=${JMX_PROMETHEUS_PORT}:${JMX_PROMETHEUS_CONF}"
-fi
+# OpenTelemetry Agent configuration
+# Load the agent via CATALINA_OPTS (Tomcat-specific) instead of JAVA_TOOL_OPTIONS
+export CATALINA_OPTS="${CATALINA_OPTS:-} -javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar"
 
 CMD+=" run"
 
