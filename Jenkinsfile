@@ -15,8 +15,8 @@ def buildPodConfig = [
     (Constants.KANIKO_CONTAINER): [
         resources: [
             cpu: '2',
-            memory: '4Gi',
-            ephemeralStorage: '4Gi'
+            memory: '6Gi',
+            ephemeralStorage: '8Gi'
         ]
     ]
 ]
@@ -79,7 +79,7 @@ pipeline {
           SNAPSHOT = sh(
             script: 'grep "^ARG SNAPSHOT=" Dockerfile | head -n1 | cut -d = -f 2',
             returnStdout: true
-          ).trim()
+          ).trim().toBoolean()
 
           echo "Building CIB seven - Version: ${VERSION}, Snapshot: ${SNAPSHOT}"
         }
@@ -97,7 +97,6 @@ pipeline {
           steps {
             container(Constants.KANIKO_CONTAINER) {
               script {
-                pushImage("harbor.cib.de/dev", "linux/amd64", "2.2.0", "run", false, true)
                 pushImage(DOCKER_REGISTRY, DOCKER_PLATFORM, VERSION, 'run', false, SNAPSHOT)
               }
             }
