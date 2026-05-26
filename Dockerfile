@@ -65,6 +65,7 @@ ENV WAIT_FOR_TIMEOUT=30
 ENV TZ=UTC
 ENV DEBUG=false
 ENV JAVA_OPTS=""
+ENV WILDFLY_MANAGEMENT_BLOCKING_TIMEOUT=600
 
 # OpenTelemetry default exporter settings (all exporters disabled, user must configure)
 # Note: The OTEL agent is loaded via server-specific variables (PREPEND_JAVA_OPTS for WildFly,
