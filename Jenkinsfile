@@ -78,12 +78,12 @@ pipeline {
         printSettings()
         script {
 
-          def VERSION = sh(
+          VERSION = sh(
             script: 'grep "^ARG VERSION=" Dockerfile | head -n1 | cut -d = -f 2',
             returnStdout: true
           ).trim()
 
-          def SNAPSHOT = sh(
+          SNAPSHOT = sh(
             script: 'grep "^ARG SNAPSHOT=" Dockerfile | head -n1 | cut -d = -f 2',
             returnStdout: true
           ).trim()
