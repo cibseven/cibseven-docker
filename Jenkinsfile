@@ -206,6 +206,18 @@ def pushImage(String destination, String platform, String cibsevenVersion, Strin
     """
 
     try {
+      echo """
+        /kaniko/executor --dockerfile `pwd`/Dockerfile \
+            --context `pwd` \
+            --custom-platform=${platform} \
+            ${destinations} \
+            --cache=false \
+            --cleanup \
+            ${distroArg} \
+            ${versionArg} \
+            ${snapshotArg}
+      """
+      /*
       sh """
         /kaniko/executor --dockerfile `pwd`/Dockerfile \
             --context `pwd` \
@@ -217,6 +229,7 @@ def pushImage(String destination, String platform, String cibsevenVersion, Strin
             ${versionArg} \
             ${snapshotArg}
       """
+      */
     } finally {
       // Clean up Kaniko's workspace to ensure clean state for next build
       sh """
