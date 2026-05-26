@@ -53,9 +53,16 @@ pipeline {
         printSettings()
         script {
           cibsevenVersion = sh(
-            script: 'grep VERSION= Dockerfile | head -n1 | cut -d = -f 2',
+            script: 'grep "^ARG VERSION=" Dockerfile | head -n1 | cut -d = -f 2',
             returnStdout: true
           ).trim()
+          def snapshotFlag = sh(
+            script: 'grep "^ARG SNAPSHOT=" Dockerfile | head -n1 | cut -d = -f 2',
+            returnStdout: true
+          ).trim()
+          if (snapshotFlag == "true") {
+            cibsevenVersion = "${cibsevenVersion}-SNAPSHOT"
+          }
           echo "CIB seven version ${cibsevenVersion}"
         }
       }
