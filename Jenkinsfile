@@ -9,18 +9,11 @@ import de.cib.pipeline.library.MavenArtifact
 def opentelemetryAgentVersion = ""
 def cibsevenVersion = ""
 def buildPodConfig = [
-    (Constants.MAVEN_JDK_17_CONTAINER): [
-        resources: [
-            cpu: '4',
-            memory: '10Gi',
-            ephemeralStorage: '8Gi'
-        ]
-    ],
     (Constants.KANIKO_CONTAINER): [
         resources: [
             cpu: '2',
-            memory: '10Gi',
-            ephemeralStorage: '8Gi'
+            memory: '4Gi',
+            ephemeralStorage: '4Gi'
         ]
     ]
 ]
