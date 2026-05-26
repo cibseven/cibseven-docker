@@ -8,7 +8,7 @@ jobs:
       matrix:
         DISTRO: [tomcat, wildfly, run]
         PLATFORM: [amd64, arm64]
-        JAVA: [17, 21]
+        JAVA: [21]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,7 +52,7 @@ jobs:
     strategy:
       matrix:
         DISTRO: [tomcat, wildfly, run]
-        JAVA: [17, 21]
+        JAVA: [21]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
