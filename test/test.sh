@@ -4,12 +4,7 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 cd ${DIR}
 
-# Set up the IMAGE_TAG based on JAVA version for proper image naming
-if [ "${JAVA:-17}" = "21" ]; then
-    export IMAGE_TAG="java21-${DISTRO}-${PLATFORM}"
-else
-    export IMAGE_TAG="${DISTRO}-${PLATFORM}"
-fi
+export IMAGE_TAG="${DISTRO}-${PLATFORM}"
 
 source test_helper.sh
 
