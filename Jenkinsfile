@@ -15,6 +15,13 @@ def buildPodConfig = [
             memory: '10Gi',
             ephemeralStorage: '8Gi'
         ]
+    ],
+    (Constants.KANIKO_CONTAINER): [
+        resources: [
+            cpu: '2',
+            memory: '10Gi',
+            ephemeralStorage: '8Gi'
+        ]
     ]
 ]
 
