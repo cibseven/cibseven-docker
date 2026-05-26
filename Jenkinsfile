@@ -37,7 +37,7 @@ pipeline {
   }
 
   parameters {
-    
+
     booleanParam(
       name: 'DEPLOY_HARBOR',
       defaultValue: false,
@@ -97,9 +97,7 @@ pipeline {
           steps {
             container(Constants.KANIKO_CONTAINER) {
               script {
-                getBuildMatrix(VERSION, SNAPSHOT).each { config ->
-                  pushImage(DOCKER_REGISTRY, DOCKER_PLATFORM, config.version, 'run', false, config.isSnapshot)
-                }
+                pushImage(DOCKER_REGISTRY, DOCKER_PLATFORM, VERSION, 'run', false, SNAPSHOT)
               }
             }
           }
