@@ -37,25 +37,18 @@ pipeline {
   }
 
   parameters {
-    choice(
-      name: 'DEPLOY_TARGET',
-      choices: ['DEPLOY_HARBOR', 'DEPLOY_DOCKERHUB'],
-      description: """🚀 Deployment Target:
-
-      • DEPLOY_HARBOR
-        Deploy snapshot images to https://harbor.cib.de
-        amd64 only
-
-      • DEPLOY_DOCKERHUB
-        Deploy public release images to https://hub.docker.com
-        amd64 only
-
-      ⚠️ Docker Hub deployment should preferably be done via GitHub Actions
-        for multi-platform images. Patch versions are not deployed to Docker Hub.
-      """
+    
+    booleanParam(
+      name: 'DEPLOY_HARBOR',
+      defaultValue: false,
+      description: "🚀 Deployment Target\n└─ Deploy snapshots to https://harbor.cib.de (amd64 only)"
     )
-    booleanParam(name: 'DEPLOY_HARBOR', defaultValue: false, description: "  └─ Deploy to https://harbor.cib.de (snapshots, amd64 only)")
-    booleanParam(name: 'DEPLOY_DOCKERHUB', defaultValue: false, description: "  └─ Deploy to https://hub.docker.com (public released versions, amd64 only). Please, use GitHub Actions, to deploy all possible platforms. Patch versions will not be deployed into hub.docker.com.")
+
+    booleanParam(
+      name: 'DEPLOY_DOCKERHUB',
+      defaultValue: false,
+      description: "└─ Deploy public release versions to https://hub.docker.com (amd64 only). Prefer GitHub Actions for multi-platform images. Patch versions are not deployed to Docker Hub."
+    )
 
     choice(
       name: 'DISTRO_BUILD',
