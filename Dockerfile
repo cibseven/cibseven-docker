@@ -1,5 +1,5 @@
 ARG VERSION=2.2.0
-ARG JAVA=17
+ARG JAVA=21
 
 FROM alpine:3.23 as builder
 
