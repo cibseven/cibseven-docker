@@ -145,6 +145,11 @@ we will not provide ready to use images for them.
 
 To override the default Java options the environment variable `JAVA_OPTS` can be set.
 
+For the `wildfly` distribution, the environment variable
+`WILDFLY_MANAGEMENT_BLOCKING_TIMEOUT` controls the
+`jboss.as.management.blocking.timeout` startup timeout. The default is `600`
+seconds to better tolerate slower arm64/QEMU-based starts in CI.
+
 ### Use docker memory limits
 
 Instead of specifying the Java memory settings it is also possible to instruct
