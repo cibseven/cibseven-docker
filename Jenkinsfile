@@ -8,11 +8,20 @@ import de.cib.pipeline.library.MavenArtifact
 
 def opentelemetryAgentVersion = ""
 def cibsevenVersion = ""
+def buildPodConfig = [
+    (Constants.MAVEN_JDK_17_CONTAINER): [
+        resources: [
+            cpu: '4',
+            memory: '10Gi',
+            ephemeralStorage: '8Gi'
+        ]
+    ]
+]
 
 pipeline {
   agent {
     kubernetes {
-      yaml BuildPodCreator.fromScratch(this)
+      yaml BuildPodCreator.fromScratch(this, buildPodConfig)
           .withMavenJdk17Container()
           .withKanikoContainer()
           .asYaml()
