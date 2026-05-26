@@ -23,7 +23,8 @@ pipeline {
     kubernetes {
       yaml BuildPodCreator.fromScratch(this, buildPodConfig)
           .withMavenJdk17Container()
-          .withKanikoContainer()
+          // .withKanikoContainer()
+          .withBuildkitContainer()
           .asYaml()
       defaultContainer Constants.MAVEN_JDK_17_CONTAINER
     }
