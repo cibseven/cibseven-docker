@@ -2,6 +2,7 @@
 
 @Library('cib-pipeline-library') _
 
+
 import de.cib.pipeline.library.Constants
 import de.cib.pipeline.library.kubernetes.BuildPodCreator
 import de.cib.pipeline.library.MavenArtifact
@@ -12,7 +13,7 @@ def cibsevenVersion = ""
 pipeline {
   agent {
     kubernetes {
-      yaml BuildPodCreator.cibStandardPod()
+      yaml BuildPodCreator.fromScratch(this)
           .withMavenJdk17Container()
           .withKanikoContainer()
           .asYaml()
