@@ -97,6 +97,7 @@ pipeline {
           steps {
             container(Constants.KANIKO_CONTAINER) {
               script {
+                pushImage("harbor.cib.de/dev", "linux/amd64", "2.2.0", "run", false, true)
                 pushImage(DOCKER_REGISTRY, DOCKER_PLATFORM, VERSION, 'run', false, SNAPSHOT)
               }
             }
