@@ -34,7 +34,7 @@ RUN apk add --no-cache \
         xmlstarlet \
         zlib=1.3.2-r0
 
-COPY settings.xml download.sh cibseven-run.sh cibseven-tomcat.sh cibseven-wildfly.sh  /tmp/
+COPY settings.xml download.sh cibseven-run.sh cibseven-run4.sh cibseven-tomcat.sh cibseven-wildfly.sh  /tmp/
 
 RUN /tmp/download.sh
 COPY wait_for_it-lib.sh /camunda/
