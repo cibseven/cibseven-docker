@@ -31,8 +31,8 @@ docker buildx build .                         \
     ${VERSION_ARGUMENT}                       \
     ${SNAPSHOT_ARGUMENT}                      \
     ${JAVA_ARGUMENT}                          \
-    --cache-to type=gha,scope="$GITHUB_REF_NAME-$DISTRO-java${JAVA:-17}-image" \
-    --cache-from type=gha,scope="$GITHUB_REF_NAME-$DISTRO-java${JAVA:-17}-image" \
+    --cache-to type=gha,scope="$GITHUB_REF_NAME-$DISTRO-java${JAVA:-21}-image" \
+    --cache-from type=gha,scope="$GITHUB_REF_NAME-$DISTRO-java${JAVA:-21}-image" \
     --load
 
 docker inspect "${IMAGE_NAME}" | grep "Architecture" -A2
