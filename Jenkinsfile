@@ -12,7 +12,7 @@ def cibsevenVersion = ""
 pipeline {
   agent {
     kubernetes {
-      yaml BuildPodCreator.cibStandardPod()
+      yaml BuildPodCreator.fromScratch(this)
           .withMavenJdk17Container()
           .withKanikoContainer()
           .asYaml()
