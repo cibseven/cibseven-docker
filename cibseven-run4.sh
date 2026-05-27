@@ -30,6 +30,11 @@ if [[ -z "${SPRING_DATASOURCE_URL:-}" && -n "${DB_URL:-}" ]]; then
   export SPRING_DATASOURCE_URL="${DB_URL}"
 fi
 
+if [ "${DEBUG}" = "true" ]; then
+  echo "Enabling debug mode, JPDA accessible under port 8000"
+  export JAVA_OPTS="${JAVA_OPTS} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000"
+fi
+
 CMD="/camunda/internal/run.sh start"
 
 wait_for_it
