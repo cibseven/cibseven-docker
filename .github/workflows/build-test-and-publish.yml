@@ -6,7 +6,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        DISTRO: [tomcat, wildfly, run]
+        DISTRO: [tomcat, wildfly, run, run4]
         PLATFORM: [amd64, arm64]
         JAVA: [21]
     steps:
@@ -47,7 +47,7 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' }}
     strategy:
       matrix:
-        DISTRO: [tomcat, wildfly, run]
+        DISTRO: [tomcat, wildfly, run, run4]
         JAVA: [21]
     steps:
       - name: Checkout
