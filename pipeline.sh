@@ -20,11 +20,7 @@ fi
 
 REPO=docker.io
 IMAGE=cibseven/cibseven
-if [ "${JAVA:-17}" = "21" ]; then
-    IMAGE_NAME=${REPO}/${IMAGE}:java21-${DISTRO}-${PLATFORM}
-else
-    IMAGE_NAME=${REPO}/${IMAGE}:${DISTRO}-${PLATFORM}
-fi
+IMAGE_NAME=${REPO}/${IMAGE}:${DISTRO}-${PLATFORM}
 
 docker buildx build .                         \
     -t "${IMAGE_NAME}"                        \
@@ -35,8 +31,8 @@ docker buildx build .                         \
     ${VERSION_ARGUMENT}                       \
     ${SNAPSHOT_ARGUMENT}                      \
     ${JAVA_ARGUMENT}                          \
-    --cache-to type=gha,scope="$GITHUB_REF_NAME-$DISTRO-java${JAVA:-17}-image" \
-    --cache-from type=gha,scope="$GITHUB_REF_NAME-$DISTRO-java${JAVA:-17}-image" \
+    --cache-to type=gha,scope="$GITHUB_REF_NAME-$DISTRO-java${JAVA:-21}-image" \
+    --cache-from type=gha,scope="$GITHUB_REF_NAME-$DISTRO-java${JAVA:-21}-image" \
     --load
 
 docker inspect "${IMAGE_NAME}" | grep "Architecture" -A2
