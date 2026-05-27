@@ -30,6 +30,10 @@ if [[ -z "${SPRING_DATASOURCE_URL:-}" && -n "${DB_URL:-}" ]]; then
   export SPRING_DATASOURCE_URL="${DB_URL}"
 fi
 
+# OpenTelemetry Agent configuration
+# Load the agent via JAVA_OPTS instead of JAVA_TOOL_OPTIONS
+export JAVA_OPTS="${JAVA_OPTS:-} -javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar"
+
 CMD="/camunda/internal/run.sh start"
 
 wait_for_it
