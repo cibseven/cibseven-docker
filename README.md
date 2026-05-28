@@ -143,6 +143,8 @@ we will not provide ready to use images for them.
 #### Java options
 
 To override the default Java options the environment variable `JAVA_OPTS` can be set.
+For the `wildfly` distribution, the default `JAVA_OPTS` are
+`-Xms512m -Xmx1024m -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m`.
 
 For the `wildfly` distribution, the environment variable
 `WILDFLY_MANAGEMENT_BLOCKING_TIMEOUT` controls the
