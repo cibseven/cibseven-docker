@@ -40,6 +40,7 @@ jobs:
           DISTRO: ${{ matrix.DISTRO }}
           PLATFORM: ${{ matrix.PLATFORM }}
           JAVA: ${{ matrix.JAVA }}
+          AI_AGENT_ENABLED: ${{ matrix.DISTRO == 'wildfly' && 'false' || 'true' }}
   publish:
     runs-on: ubuntu-24.04
     needs: build-and-test
