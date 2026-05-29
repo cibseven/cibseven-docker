@@ -86,11 +86,12 @@ wait_for_it
 # Use existing wildfly distribution if present..
 JBOSS_HOME="${JBOSS_HOME:-/camunda}"
 
-# On arm64, webclient bean initialization can race with engine schema bootstrap
+# Webclient bean initialization can race with engine schema bootstrap
 # (MOD_ELEMENT_TEMPLATES may not exist yet). Lazy-init avoids this startup race
-# and still keeps the AI agent path enabled.
-if [ "$(uname -m)" = "aarch64" ] && [ "${AI_AGENT_ENABLED:-true}" = "true" ]; then
-  echo "arm64 detected with AI_AGENT_ENABLED=true -> enabling Spring lazy initialization"
+# and still keeps the AI agent path enabled. This applies to all architectures
+# since the timing issue can occur on both arm64 and amd64.
+if [ "${AI_AGENT_ENABLED:-true}" = "true" ]; then
+  echo "AI_AGENT_ENABLED=true -> enabling Spring lazy initialization"
   export SPRING_MAIN_LAZY_INITIALIZATION="${SPRING_MAIN_LAZY_INITIALIZATION:-true}"
 fi
 
