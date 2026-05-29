@@ -86,6 +86,14 @@ wait_for_it
 # Use existing wildfly distribution if present..
 JBOSS_HOME="${JBOSS_HOME:-/camunda}"
 
+# WildFly arm64 currently fails startup while loading bundled AI element templates
+# against a schema that can miss MOD_ELEMENT_TEMPLATES. Until schema parity is
+# guaranteed, force-disable the optional connector on arm64.
+if [ "$(uname -m)" = "aarch64" ] && [ "${AI_AGENT_ENABLED:-true}" = "true" ]; then
+  echo "arm64 detected -> forcing AI_AGENT_ENABLED=false for WildFly startup"
+  export AI_AGENT_ENABLED=false
+fi
+
 # AI Agent connector toggle: the ai-agent module ships active-by-default (imported
 # by the cibseven-engine-plugin-connect module). Setting AI_AGENT_ENABLED=false
 # removes that import so the connector is not loaded -- the module dir and its jars
@@ -95,6 +103,9 @@ if [ "${AI_AGENT_ENABLED:-true}" = "false" ]; then
   echo "AI_AGENT_ENABLED=false -> disabling ai-agent connector (removing module import)"
   sed -i '/cibseven-connect-ai-agent/d' \
     "$JBOSS_HOME/modules/org/cibseven/bpm/cibseven-engine-plugin-connect/main/module.xml"
+  rm -f \
+    "$JBOSS_HOME/standalone/configuration/element-templates/cibseven-ai-agent.json" \
+    "$JBOSS_HOME/standalone/configuration/element-templates/cibseven-knowledge-ingestor.json"
 fi
 
 # Define the target file path
