@@ -21,6 +21,7 @@ function build_and_push {
         --build-arg PASSWORD=${NEXUS_PASS}        \
         --cache-from type=gha,scope="$GITHUB_REF_NAME-$DISTRO-java${JAVA}-image" \
         --platform $PLATFORMS \
+        --provenance=false \
         --push
 
       echo "Tags released:" >> $GITHUB_STEP_SUMMARY
