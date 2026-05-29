@@ -60,7 +60,10 @@ export JBOSS_MODULES_SYSTEM_PKGS=${JBOSS_MODULES_SYSTEM_PKGS:-"org.jboss.byteman
 # Ensure wildfly binds to public interface, preferes IPv4 and runs in the background
 export PREPEND_JAVA_OPTS="-Djboss.bind.address=0.0.0.0 -Djboss.bind.address.management=0.0.0.0 -Djava.net.preferIPv4Stack=true -Djava.awt.headless=true -Djboss.modules.system.pkgs=${JBOSS_MODULES_SYSTEM_PKGS} -Djboss.as.management.blocking.timeout=${WILDFLY_MANAGEMENT_BLOCKING_TIMEOUT:-600}"
 export LAUNCH_JBOSS_IN_BACKGROUND=TRUE
-export JAVA_OPTS="${JAVA_OPTS:-"-Xms512m -Xmx1024m -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m"}"
+# MaxMetaspaceSize=1024m gives the optional ai-agent connector (LangChain4j/ONNX,
+# which load many classes) room to avoid OutOfMemoryError: Metaspace. Matches the
+# distribution's standalone.conf default. (CIB7-1445)
+export JAVA_OPTS="${JAVA_OPTS:-"-Xms512m -Xmx1024m -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=1024m"}"
 
 CMD="/camunda/bin/standalone.sh"
 
