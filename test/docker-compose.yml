@@ -2,6 +2,8 @@ services:
     camunda:
         image: cibseven/cibseven:${IMAGE_TAG:-${DISTRO}-${PLATFORM}}
         platform: linux/${PLATFORM}
+        environment:
+            - AI_AGENT_ENABLED=${AI_AGENT_ENABLED:-true}
         ports:
             - "8080:8080"
         restart: unless-stopped
@@ -15,6 +17,7 @@ services:
             - DB_USERNAME=camunda
             - DB_PASSWORD=camunda
             - WAIT_FOR=mysql:3306
+            - AI_AGENT_ENABLED=${AI_AGENT_ENABLED:-true}
         links:
             - mysql
         ports:
@@ -30,6 +33,7 @@ services:
             - DB_USERNAME=camunda
             - DB_PASSWORD=camunda
             - WAIT_FOR=postgres:5432
+            - AI_AGENT_ENABLED=${AI_AGENT_ENABLED:-true}
         links:
             - postgres
         ports:
@@ -41,6 +45,7 @@ services:
         platform: linux/${PLATFORM}
         environment:
             - DEBUG=true
+            - AI_AGENT_ENABLED=${AI_AGENT_ENABLED:-true}
         ports:
             - "8080:8080"
             - "8000:8000"
@@ -55,6 +60,7 @@ services:
             - DB_USERNAME=camunda
             - DB_PASSWORD_FILE=/run/secrets/camunda_db_password
             - WAIT_FOR=mysql:3306
+            - AI_AGENT_ENABLED=${AI_AGENT_ENABLED:-true}
         volumes:
             - $PWD/db-password.txt:/run/secrets/camunda_db_password
         links:
@@ -86,6 +92,7 @@ services:
             - OTEL_TRACES_EXPORTER=otlp
             - OTEL_EXPORTER_PROMETHEUS_PORT=9464
             - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
+            - AI_AGENT_ENABLED=${AI_AGENT_ENABLED:-true}
         ports:
             - "8080:8080"
             - "9464:9464"
