@@ -86,12 +86,12 @@ wait_for_it
 # Use existing wildfly distribution if present..
 JBOSS_HOME="${JBOSS_HOME:-/camunda}"
 
-# WildFly arm64 currently fails startup while loading bundled AI element templates
-# against a schema that can miss MOD_ELEMENT_TEMPLATES. Until schema parity is
-# guaranteed, force-disable the optional connector on arm64.
+# On arm64, webclient bean initialization can race with engine schema bootstrap
+# (MOD_ELEMENT_TEMPLATES may not exist yet). Lazy-init avoids this startup race
+# and still keeps the AI agent path enabled.
 if [ "$(uname -m)" = "aarch64" ] && [ "${AI_AGENT_ENABLED:-true}" = "true" ]; then
-  echo "arm64 detected -> forcing AI_AGENT_ENABLED=false for WildFly startup"
-  export AI_AGENT_ENABLED=false
+  echo "arm64 detected with AI_AGENT_ENABLED=true -> enabling Spring lazy initialization"
+  export SPRING_MAIN_LAZY_INITIALIZATION="${SPRING_MAIN_LAZY_INITIALIZATION:-true}"
 fi
 
 # AI Agent connector toggle: the ai-agent module ships active-by-default (imported
