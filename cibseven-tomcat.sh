@@ -8,13 +8,14 @@ source $(dirname "$0")/wait_for_it-lib.sh
 # Use existing tomcat distribution if present..
 CATALINA_HOME="${CATALINA_HOME:-/camunda}"
 
-# AI Agent connector toggle: the connector ships active-by-default in the Tomcat
-# lib. Setting AI_AGENT_ENABLED=false removes the connector JAR so it no longer
-# registers via the cibseven-connect SPI (its LangChain4j deps stay on disk but
-# inert). Leave =true (the default) to keep the ai-agent connector available.
+# AI Agent connector toggle: the connector overlay ships in lib-ai/ and is wired
+# onto Tomcat's common.loader in conf/catalina.properties (active by default).
+# Setting AI_AGENT_ENABLED=false strips the lib-ai entries from common.loader so
+# the connector is not loaded -- without deleting any jars. Leave =true (the
+# default) to keep the ai-agent connector available.
 if [ "${AI_AGENT_ENABLED:-true}" = "false" ]; then
-  echo "AI_AGENT_ENABLED=false -> deactivating ai-agent connector"
-  rm -f "${CATALINA_HOME}"/lib/cibseven-connect-ai-agent-*.jar
+  echo "AI_AGENT_ENABLED=false -> disabling ai-agent connector (removing lib-ai from common.loader)"
+  sed -i 's|,"${catalina.base}/lib-ai","${catalina.base}/lib-ai/\*\.jar"||' "${CATALINA_HOME}/conf/catalina.properties"
 fi
 
 # Set default values for DB_ variables
