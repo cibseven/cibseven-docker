@@ -64,6 +64,9 @@ ENV WAIT_FOR=
 ENV WAIT_FOR_TIMEOUT=30
 ENV TZ=UTC
 ENV DEBUG=false
+# AI Agent connector toggle. The ai-agent connector ships active-by-default in
+# the Tomcat distribution. Set AI_AGENT_ENABLED=false to deactivate it at startup.
+ENV AI_AGENT_ENABLED=true
 ENV JAVA_OPTS=""
 ENV WILDFLY_MANAGEMENT_BLOCKING_TIMEOUT=600
 

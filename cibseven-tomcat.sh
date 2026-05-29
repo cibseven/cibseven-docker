@@ -8,6 +8,16 @@ source $(dirname "$0")/wait_for_it-lib.sh
 # Use existing tomcat distribution if present..
 CATALINA_HOME="${CATALINA_HOME:-/camunda}"
 
+# AI Agent connector toggle: the connector overlay ships in lib-ai/ and is wired
+# onto Tomcat's common.loader in conf/catalina.properties (active by default).
+# Setting AI_AGENT_ENABLED=false strips the lib-ai entries from common.loader so
+# the connector is not loaded -- without deleting any jars. Leave =true (the
+# default) to keep the ai-agent connector available.
+if [ "${AI_AGENT_ENABLED:-true}" = "false" ]; then
+  echo "AI_AGENT_ENABLED=false -> disabling ai-agent connector (removing lib-ai from common.loader)"
+  sed -i 's|,"${catalina.base}/lib-ai","${catalina.base}/lib-ai/\*\.jar"||' "${CATALINA_HOME}/conf/catalina.properties"
+fi
+
 # Set default values for DB_ variables
 # Set Password as Docker Secrets for Swarm-Mode
 if [[ -z "${DB_PASSWORD:-}" && -n "${DB_PASSWORD_FILE:-}" && -f "${DB_PASSWORD_FILE:-}" ]]; then
