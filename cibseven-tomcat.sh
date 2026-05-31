@@ -62,9 +62,12 @@ if [ "${DEBUG}" = "true" ]; then
   CMD+=" jpda"
 fi
 
-# OpenTelemetry Agent configuration
+# OpenTelemetry Agent configuration (opt-in, mirrors the old JMX_PROMETHEUS gate)
 # Load the agent via CATALINA_OPTS (Tomcat-specific) instead of JAVA_TOOL_OPTIONS
-export CATALINA_OPTS="${CATALINA_OPTS:-} -javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar"
+if [ "${OTEL_AGENT_ENABLED:-false}" = "true" ]; then
+  echo "OTEL_AGENT_ENABLED=true -> attaching OpenTelemetry Java agent"
+  export CATALINA_OPTS="${CATALINA_OPTS:-} -javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar"
+fi
 
 CMD+=" run"
 

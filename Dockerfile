@@ -70,6 +70,12 @@ ENV AI_AGENT_ENABLED=true
 ENV JAVA_OPTS=""
 ENV WILDFLY_MANAGEMENT_BLOCKING_TIMEOUT=600
 
+# OpenTelemetry Java agent toggle (opt-in). When false (the default) the agent is
+# NOT attached on Tomcat/WildFly, mirroring the pre-2.x JMX_PROMETHEUS=false default.
+# Set OTEL_AGENT_ENABLED=true to load the agent and configure exporters via OTEL_* below.
+# (The Spring Boot run/run4 distributions always load the agent via JAVA_OPTS.)
+ENV OTEL_AGENT_ENABLED=false
+
 # OpenTelemetry default exporter settings (all exporters disabled, user must configure)
 # Note: The OTEL agent is loaded via server-specific variables (PREPEND_JAVA_OPTS for WildFly,
 # CATALINA_OPTS for Tomcat) to avoid affecting CLI tools like jboss-cli.sh

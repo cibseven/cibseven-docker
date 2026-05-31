@@ -55,7 +55,14 @@ if [ -z "$SKIP_DB_CONFIG" ]; then
 fi
 
 # See https://issues.jboss.org/browse/LOGMGR-218
-export JBOSS_MODULES_SYSTEM_PKGS=${JBOSS_MODULES_SYSTEM_PKGS:-"org.jboss.byteman,org.jboss.logmanager"}
+# org.jboss.logmanager is only required as a system package for the OpenTelemetry
+# agent's LogManager bootclasspath workaround below, so add it only when the agent
+# is enabled (mirrors the old JMX_PROMETHEUS gate).
+if [ "${OTEL_AGENT_ENABLED:-false}" = "true" ]; then
+  export JBOSS_MODULES_SYSTEM_PKGS=${JBOSS_MODULES_SYSTEM_PKGS:-"org.jboss.byteman,org.jboss.logmanager"}
+else
+  export JBOSS_MODULES_SYSTEM_PKGS=${JBOSS_MODULES_SYSTEM_PKGS:-"org.jboss.byteman"}
+fi
 
 # Ensure wildfly binds to public interface, preferes IPv4 and runs in the background
 export PREPEND_JAVA_OPTS="-Djboss.bind.address=0.0.0.0 -Djboss.bind.address.management=0.0.0.0 -Djava.net.preferIPv4Stack=true -Djava.awt.headless=true -Djboss.modules.system.pkgs=${JBOSS_MODULES_SYSTEM_PKGS} -Djboss.as.management.blocking.timeout=${WILDFLY_MANAGEMENT_BLOCKING_TIMEOUT:-600}"
@@ -72,14 +79,18 @@ if [ "${DEBUG}" = "true" ]; then
   CMD+=" --debug *:8000"
 fi
 
-# JBoss LogManager configuration for OpenTelemetry
-# See https://github.com/prometheus/jmx_exporter/issues/344
-LOG_MANAGER_PATH=$(find /camunda/modules -name "jboss-logmanager*.jar")
-COMMON_PATH=$(find /camunda/modules -name "wildfly-common*.jar")
-SMALLRYE_OS_PATH=$(find /camunda/modules -name "smallrye-common-os*.jar")
-SMALLRYE_NET_PATH=$(find /camunda/modules -name "smallrye-common-net*.jar")
-export PREPEND_JAVA_OPTS="${PREPEND_JAVA_OPTS} -Dsun.util.logging.disableCallerCheck=true -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Xbootclasspath/a:$LOG_MANAGER_PATH:$COMMON_PATH:$SMALLRYE_OS_PATH:$SMALLRYE_NET_PATH"
-export PREPEND_JAVA_OPTS="${PREPEND_JAVA_OPTS} -javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar"
+# OpenTelemetry agent (opt-in, mirrors the old JMX_PROMETHEUS gate)
+if [ "${OTEL_AGENT_ENABLED:-false}" = "true" ]; then
+  echo "OTEL_AGENT_ENABLED=true -> attaching OpenTelemetry Java agent"
+  # JBoss LogManager configuration for OpenTelemetry
+  # See https://github.com/prometheus/jmx_exporter/issues/344
+  LOG_MANAGER_PATH=$(find /camunda/modules -name "jboss-logmanager*.jar")
+  COMMON_PATH=$(find /camunda/modules -name "wildfly-common*.jar")
+  SMALLRYE_OS_PATH=$(find /camunda/modules -name "smallrye-common-os*.jar")
+  SMALLRYE_NET_PATH=$(find /camunda/modules -name "smallrye-common-net*.jar")
+  export PREPEND_JAVA_OPTS="${PREPEND_JAVA_OPTS} -Dsun.util.logging.disableCallerCheck=true -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Xbootclasspath/a:$LOG_MANAGER_PATH:$COMMON_PATH:$SMALLRYE_OS_PATH:$SMALLRYE_NET_PATH"
+  export PREPEND_JAVA_OPTS="${PREPEND_JAVA_OPTS} -javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar"
+fi
 
 wait_for_it
 
