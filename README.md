@@ -286,7 +286,12 @@ This is only supported for `wildfly` and `tomcat` distributions.
 
 ### OpenTelemetry Agent
 
-The CIB seven Docker images come with OpenTelemetry Java-Agent pre-installed. The agent automatically instruments your application to generate telemetry data (metrics, traces, and logs), but all exporters are disabled by default. You need to configure at least one exporter to provide telemetry data.
+The CIB seven Docker images come with the OpenTelemetry Java-Agent pre-installed. When loaded, the agent automatically instruments your application to generate telemetry data (metrics, traces, and logs), but all exporters are disabled by default. You need to configure at least one exporter to provide telemetry data.
+
+**Loading the agent:**
+
+* On the `tomcat` and `wildfly` distributions the agent is **opt-in**: set `OTEL_AGENT_ENABLED=true` to attach it (default: `false`). This mirrors the pre-2.x `JMX_PROMETHEUS` behavior and avoids the agent's startup cost when telemetry is not needed.
+* On the Spring Boot `run` and `run4` distributions the agent is always loaded (it stays inert until an exporter is configured), so `OTEL_AGENT_ENABLED` has no effect there.
 
 #### Configuration
 
@@ -294,6 +299,7 @@ The OpenTelemetry Agent can be configured using environment variables.
 
 **Pre-configured Environment Variables (from Dockerfile):**
 
+* `OTEL_AGENT_ENABLED`: Attach the OpenTelemetry agent on `tomcat`/`wildfly` (default: `false`; no effect on `run`/`run4`, which always load it)
 * `OTEL_SERVICE_NAME`: Service name for telemetry data (default: `cibseven`)
 * `OTEL_METRICS_EXPORTER`: Configure metrics exporter (default: `none`, examples: `prometheus`, `otlp`)
 * `OTEL_TRACES_EXPORTER`: Configure traces exporter (default: `none`, example: `otlp`)
@@ -323,6 +329,7 @@ You can add custom JMX metrics by mounting your own configuration file to `/camu
 
 ```bash
 docker run -d --name cibseven -p 8080:8080 -p 9464:9464 \
+           -e OTEL_AGENT_ENABLED=true \
            -e OTEL_METRICS_EXPORTER=prometheus \
            -e OTEL_EXPORTER_PROMETHEUS_PORT=9464 \
            -v $(pwd)/my_custom_jmx_config.yaml:/camunda/javaagent/jmx_custom_config.yaml \

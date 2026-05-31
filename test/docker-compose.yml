@@ -87,6 +87,8 @@ services:
         image: cibseven/cibseven:${IMAGE_TAG:-${DISTRO}-${PLATFORM}}
         platform: linux/${PLATFORM}
         environment:
+            # OTel agent is opt-in on tomcat/wildfly (no-op on run/run4, which always load it)
+            - OTEL_AGENT_ENABLED=true
             - OTEL_METRICS_EXPORTER=prometheus
             - OTEL_LOGS_EXPORTER=none
             - OTEL_TRACES_EXPORTER=otlp
