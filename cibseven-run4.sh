@@ -35,6 +35,10 @@ if [ "${DEBUG}" = "true" ]; then
   export JAVA_OPTS="${JAVA_OPTS} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000"
 fi
 
+# OpenTelemetry Agent configuration
+# Load the agent via JAVA_OPTS instead of JAVA_TOOL_OPTIONS
+export JAVA_OPTS="${JAVA_OPTS:-} -javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar"
+
 CMD="/camunda/internal/run.sh start"
 
 wait_for_it

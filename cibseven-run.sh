@@ -30,6 +30,11 @@ if [[ -z "${SPRING_DATASOURCE_URL:-}" && -n "${DB_URL:-}" ]]; then
   export SPRING_DATASOURCE_URL="${DB_URL}"
 fi
 
+if [ "${DEBUG}" = "true" ]; then
+  echo "Enabling debug mode, JPDA accessible under port 8000"
+  export JAVA_OPTS="${JAVA_OPTS} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000"
+fi
+
 # OpenTelemetry Agent configuration
 # Load the agent via JAVA_OPTS instead of JAVA_TOOL_OPTIONS
 export JAVA_OPTS="${JAVA_OPTS:-} -javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar"
