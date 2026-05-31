@@ -7,7 +7,7 @@ FROM alpine:3.23 as builder
 # Re-declare to use in this stage (inherits the value from global)
 ARG VERSION
 ARG DISTRO=tomcat
-ARG SNAPSHOT=true
+ARG SNAPSHOT=false
 
 ARG USER
 ARG PASSWORD
