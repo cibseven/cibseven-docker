@@ -36,8 +36,6 @@ if [ $(docker manifest inspect $IMAGE:${CHECK_TAG} > /dev/null ; echo $?) == '0'
     exit 0
 fi
 
-docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
-
 tags=()
 
 if [ "${SNAPSHOT}" = "true" ]; then
