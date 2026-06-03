@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: build-and-test
     # publish only from main branch
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.event_name == 'workflow_dispatch' ||  github.ref == 'refs/heads/main' }}
     strategy:
       matrix:
         DISTRO: [tomcat, wildfly, run, run4]
