@@ -15,6 +15,7 @@ pipeline {
       yaml BuildPodCreator.fromScratch(this)
           .withMavenJdk17Container()
           .withKanikoContainer()
+          .withSyftContainer()
           .asYaml()
       defaultContainer Constants.MAVEN_JDK_17_CONTAINER
     }
@@ -35,6 +36,11 @@ pipeline {
       name: 'DEPLOY_DOCKER_HUB',
       defaultValue: false,
       description: 'Deploy to https://hub.docker.com (public released versions, amd64 only). Please, use GitHub Actions, to deploy all possible platforms. Patch versions will not be deployed into hub.docker.com.'
+    )
+    booleanParam(
+      name: 'ATTACH_TO_ARTIFACTS',
+      defaultValue: false,
+      description: 'Attach generated image SBOMs as Jenkins build artifacts'
     )
   }
 
@@ -92,6 +98,38 @@ def pushImage(String destination, String platform, String cibsevenVersion) {
     if (platform == "linux/arm64") {
       prefix = "arm64-"
     }
+
+    def imageTag = "${prefix}${cibsevenVersion}"
+    def sbomFile = "cibseven-${imageTag}.cdx.json"
+    def imageArchive = "cibseven-sbom-source-${imageTag}.tar"
+
+    sh """
+      /kaniko/executor --dockerfile `pwd`/Dockerfile \
+          --context `pwd` \
+          --custom-platform=${platform} \
+          --no-push \
+          --tar-path `pwd`/${imageArchive} \
+          --cache=false \
+          --cleanup
+    """
+
+    container(Constants.SYFT_CONTAINER) {
+      sh """
+        syft docker-archive:${imageArchive} \
+            --scope all-layers \
+            --output cyclonedx-json=${sbomFile}
+        test -s ${sbomFile}
+        grep -Eq '"bomFormat"[[:space:]]*:[[:space:]]*"CycloneDX"' ${sbomFile}
+      """
+    }
+
+    sh "rm -f ${imageArchive}"
+
+    if (params.ATTACH_TO_ARTIFACTS) {
+      archiveArtifacts artifacts: sbomFile, fingerprint: true
+    }
+
+    // TODO: Save the generated SBOM with the deployed image, either as an OCI artifact or inside the image.
 
     def deployLatest = !isPatchVersion(cibsevenVersion)
     if (deployLatest) {
