@@ -14,8 +14,15 @@ pipeline {
     kubernetes {
       yaml BuildPodCreator.fromScratch(this)
           .withMavenJdk17Container()
-          .withKanikoContainer()
           .withSyftContainer()
+          .withKanikoContainer([
+                        resources: [
+                            cpu: '4',
+                            memory: '16Gi',
+                            ephemeralStorage: '14Gi'
+                        ]
+                    ]
+          )
           .asYaml()
       defaultContainer Constants.MAVEN_JDK_17_CONTAINER
     }
