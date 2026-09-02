@@ -38,9 +38,14 @@ pipeline {
       description: 'Deploy to https://hub.docker.com (public released versions, amd64 only). Please, use GitHub Actions, to deploy all possible platforms. Patch versions will not be deployed into hub.docker.com.'
     )
     booleanParam(
-      name: 'ATTACH_TO_ARTIFACTS',
+      name: 'ATTACH_SBOM_TO_ARTIFACTS',
       defaultValue: false,
       description: 'Attach generated image SBOMs as Jenkins build artifacts'
+    )
+    booleanParam(
+      name: 'DEPLOY_WITHOUT_SBOM',
+      defaultValue: false,
+      description: 'Skip SBOM generation and OCI attachment entirely'
     )
   }
 
@@ -65,8 +70,8 @@ pipeline {
       steps {
         container(Constants.KANIKO_CONTAINER) {
           script {
-            pushImage("harbor.cib.de/dev", "linux/amd64", cibsevenVersion)
-            // pushImage("harbor.cib.de/dev", "linux/arm64", cibsevenVersion)
+            // oci-1-1 confirmed working against harbor.cib.de
+            pushImage("harbor.cib.de/dev", "linux/amd64", cibsevenVersion, "oci-1-1")
           }
         }
       }
@@ -82,8 +87,9 @@ pipeline {
       steps {
         container(Constants.KANIKO_CONTAINER) {
           script {
-            pushImage("docker.io/cibseven", "linux/amd64", cibsevenVersion)
-            // pushImage("docker.io/cibseven", "linux/arm64", cibsevenVersion)
+            // Docker Hub's OCI 1.1 referrers support is unconfirmed; skip SBOM deployment
+            // there until a mode is verified and explicitly set.
+            pushImage("docker.io/cibseven", "linux/amd64", cibsevenVersion, "none")
           }
         }
       }
@@ -92,7 +98,7 @@ pipeline {
   }
 }
 
-def pushImage(String destination, String platform, String cibsevenVersion) {
+def pushImage(String destination, String platform, String cibsevenVersion, String sbomDeployMode) {
   withMaven(options: []) {
     def prefix = ""
     if (platform == "linux/arm64") {
@@ -101,35 +107,8 @@ def pushImage(String destination, String platform, String cibsevenVersion) {
 
     def imageTag = "${prefix}${cibsevenVersion}"
     def sbomFile = "cibseven-${imageTag}.cdx.json"
-    def imageArchive = "cibseven-sbom-source-${imageTag}.tar"
-
-    sh """
-      /kaniko/executor --dockerfile `pwd`/Dockerfile \
-          --context `pwd` \
-          --custom-platform=${platform} \
-          --no-push \
-          --tar-path `pwd`/${imageArchive} \
-          --cache=false \
-          --cleanup
-    """
-
-    container(Constants.SYFT_CONTAINER) {
-      sh """
-        syft docker-archive:${imageArchive} \
-            --scope all-layers \
-            --output cyclonedx-json=${sbomFile}
-        test -s ${sbomFile}
-        grep -Eq '"bomFormat"[[:space:]]*:[[:space:]]*"CycloneDX"' ${sbomFile}
-      """
-    }
-
-    sh "rm -f ${imageArchive}"
-
-    if (params.ATTACH_TO_ARTIFACTS) {
-      archiveArtifacts artifacts: sbomFile, fingerprint: true
-    }
-
-    // TODO: Save the generated SBOM with the deployed image, either as an OCI artifact or inside the image.
+    def primaryImageRef = "${destination}/cibseven:${imageTag}"
+    def normalizedSbomDeployMode = normalizeSbomDeployMode(sbomDeployMode)
 
     def deployLatest = !isPatchVersion(cibsevenVersion)
     if (deployLatest) {
@@ -149,7 +128,85 @@ def pushImage(String destination, String platform, String cibsevenVersion) {
             --destination="${destination}/cibseven:${prefix}${cibsevenVersion}"
       """
     }
+
+    def deploySbom = !params.DEPLOY_WITHOUT_SBOM && normalizedSbomDeployMode != "none"
+    def attachSbom = params.ATTACH_SBOM_TO_ARTIFACTS
+    if (attachSbom || deploySbom) {
+      generateSbom(primaryImageRef, sbomFile)
+
+      if (attachSbom) {
+        archiveArtifacts artifacts: sbomFile, fingerprint: true
+      }
+
+      if (deploySbom) {
+        deploySbomToRegistry(primaryImageRef, sbomFile, normalizedSbomDeployMode)
+      }
+    }
   }
+}
+
+// Treats any value other than "oci-1-1" or "legacy" as "none" (no SBOM deployment).
+def normalizeSbomDeployMode(String sbomDeployMode) {
+  return (sbomDeployMode == "oci-1-1" || sbomDeployMode == "legacy") ? sbomDeployMode : "none"
+}
+
+// Scans the already-pushed image straight from the registry (no second build needed).
+def generateSbom(String imageRef, String sbomFile) {
+  // Kaniko's registry credentials live only in its own container; copy them onto the
+  // shared workspace so the Syft container below can reuse them to pull the image.
+  def dockerConfigDir = "${env.WORKSPACE}/.docker-config-for-sbom"
+  sh "mkdir -p ${dockerConfigDir} && cp /kaniko/.docker/config.json ${dockerConfigDir}/config.json"
+
+  container(Constants.SYFT_CONTAINER) {
+    sh """
+      DOCKER_CONFIG=${dockerConfigDir} syft ${imageRef} \
+          --scope all-layers \
+          --output cyclonedx-json=${sbomFile}
+      test -s ${sbomFile}
+      grep -Eq '"bomFormat"[[:space:]]*:[[:space:]]*"CycloneDX"' ${sbomFile}
+    """
+  }
+}
+
+// Attaches the already-generated SBOM to the image. "oci-1-1" uses the real referrers API
+// (confirmed working on Harbor); "legacy" uses cosign's tag-based fallback, which works
+// on any registry, for destinations whose OCI 1.1 support isn't confirmed yet.
+def deploySbomToRegistry(String imageRef, String sbomFile, String sbomDeployMode) {
+  def cosignBinary = downloadCosign()
+
+  def modeEnv = ""
+  def modeArgs = ""
+  if (sbomDeployMode == "oci-1-1") {
+    modeEnv = "COSIGN_EXPERIMENTAL=1 "
+    modeArgs = "--registry-referrers-mode oci-1-1"
+  }
+
+  sh """
+    DOCKER_CONFIG=/kaniko/.docker ${modeEnv}${cosignBinary} attach sbom \
+        --sbom ${sbomFile} \
+        --type cyclonedx \
+        ${modeArgs} \
+        "${imageRef}"
+  """
+}
+
+// cosign/curl are not available on this Jenkins agent, so fetch the cosign binary
+// once via Maven's wagon plugin instead (mvn is guaranteed in the Maven container).
+def downloadCosign() {
+  def cosignVersion = "v2.4.1"
+  def cosignBinary = "${env.WORKSPACE}/target/tools/cosign-linux-amd64"
+  if (!fileExists(cosignBinary)) {
+    container(Constants.MAVEN_JDK_17_CONTAINER) {
+      sh """
+        mvn -q org.codehaus.mojo:wagon-maven-plugin:3.0.0:download-single \
+            -Dwagon.url=https://github.com/sigstore/cosign/releases/download/${cosignVersion} \
+            -Dwagon.fromFile=cosign-linux-amd64 \
+            -Dwagon.toDir=target/tools
+        chmod +x ${cosignBinary}
+      """
+    }
+  }
+  return cosignBinary
 }
 
 // - "1.2.0" -> no
