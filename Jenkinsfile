@@ -34,6 +34,11 @@ pipeline {
 
   // Parameter that can be changed in the Jenkins UI
   parameters {
+    choice(
+      name: 'DISTRO',
+      choices: ['tomcat', 'wildfly', 'run', 'run4'],
+      description: 'Distribution to build and deploy'
+    )
     booleanParam(
       name: 'DEPLOY_HARBOR_CIB_DE',
       defaultValue: false,
@@ -43,11 +48,6 @@ pipeline {
       name: 'DEPLOY_DOCKER_HUB',
       defaultValue: false,
       description: 'Deploy to https://hub.docker.com (public released versions, amd64 only). Please, use GitHub Actions, to deploy all possible platforms. Patch versions will not be deployed into hub.docker.com.'
-    )
-    choice(
-      name: 'DISTRO',
-      choices: ['tomcat', 'wildfly', 'run', 'run4'],
-      description: 'Distribution to build and deploy'
     )
     booleanParam(
       name: 'ATTACH_SBOM_TO_ARTIFACTS',
@@ -70,6 +70,13 @@ pipeline {
             script: 'grep VERSION= Dockerfile | head -n1 | cut -d = -f 2',
             returnStdout: true
           ).trim()
+          def snapshot = sh(
+            script: 'grep SNAPSHOT= Dockerfile | head -n1 | cut -d = -f 2',
+            returnStdout: true
+          ).trim()
+          if (snapshot == 'true') {
+            cibsevenVersion += '-SNAPSHOT'
+          }
           echo "CIB seven version ${cibsevenVersion}"
         }
       }
@@ -116,35 +123,42 @@ def pushImage(String destination, String platform, String cibsevenVersion, Strin
     if (platform == "linux/arm64") {
       prefix = "arm64-"
     }
+    if (distro && distro != '') {
+      prefix = prefix + "${distro}-"
+    }
 
-    def imageTag = "${prefix}${distro}-${cibsevenVersion}"
+    def isDefault = distro == 'tomcat'
+    def deployLatest = !cibsevenVersion.endsWith('-SNAPSHOT')
+    def distroArg = "--build-arg DISTRO=\"${distro}\""
+    def isSnapshot = !deployLatest
+    def baseVersion = cibsevenVersion.replace('-SNAPSHOT', '')
+    def versionArg = "--build-arg VERSION=\"${baseVersion}\""
+    def snapshotArg = "--build-arg SNAPSHOT=${isSnapshot}"
+    def imageTag = "${prefix}${cibsevenVersion}"
     def sbomFile = "cibseven-${imageTag}.cdx.json"
     def primaryImageRef = "${destination}/cibseven:${imageTag}"
-    def normalizedSbomDeployMode = normalizeSbomDeployMode(sbomDeployMode)
-    def distroArg = "--build-arg DISTRO=\"${distro}\""
+    sbomDeployMode = (sbomDeployMode == "oci-1-1" || sbomDeployMode == "legacy") ? sbomDeployMode : "none"
 
-    def deployLatest = !isPatchVersion(cibsevenVersion)
+    def destinations = "--destination=\"${destination}/cibseven:${prefix}${cibsevenVersion}\""
     if (deployLatest) {
-      sh """
-        /kaniko/executor --dockerfile `pwd`/Dockerfile \
-            --context `pwd` \
-            --custom-platform=${platform} \
-            --destination="${destination}/cibseven:${imageTag}" \
-            --destination="${destination}/cibseven:${prefix}${distro}-latest" \
-            ${distroArg}
-      """
-    }
-    else {
-      sh """
-        /kaniko/executor --dockerfile `pwd`/Dockerfile \
-            --context `pwd` \
-            --custom-platform=${platform} \
-            --destination="${destination}/cibseven:${imageTag}" \
-            ${distroArg}
-      """
+      destinations += " --destination=\"${destination}/cibseven:${prefix}latest\""
+      if (isDefault) {
+        destinations += " --destination=\"${destination}/cibseven:${cibsevenVersion}\""
+        destinations += " --destination=\"${destination}/cibseven:latest\""
+      }
     }
 
-    def deploySbom = !params.DEPLOY_WITHOUT_SBOM && normalizedSbomDeployMode != "none"
+    sh """
+      /kaniko/executor --dockerfile `pwd`/Dockerfile \
+          --context `pwd` \
+          --custom-platform=${platform} \
+          ${destinations} \
+          ${distroArg} \
+          ${versionArg} \
+          ${snapshotArg}
+    """
+
+    def deploySbom = !params.DEPLOY_WITHOUT_SBOM && sbomDeployMode != "none"
     def attachSbom = params.ATTACH_SBOM_TO_ARTIFACTS
     if (attachSbom || deploySbom) {
       generateSbom(primaryImageRef, sbomFile)
@@ -154,15 +168,10 @@ def pushImage(String destination, String platform, String cibsevenVersion, Strin
       }
 
       if (deploySbom) {
-        deploySbomToRegistry(primaryImageRef, sbomFile, normalizedSbomDeployMode)
+        deploySbomToRegistry(primaryImageRef, sbomFile, sbomDeployMode)
       }
     }
   }
-}
-
-// Treats any value other than "oci-1-1" or "legacy" as "none" (no SBOM deployment).
-def normalizeSbomDeployMode(String sbomDeployMode) {
-  return (sbomDeployMode == "oci-1-1" || sbomDeployMode == "legacy") ? sbomDeployMode : "none"
 }
 
 // Scans the already-pushed image straight from the registry (no second build needed).
