@@ -44,6 +44,11 @@ pipeline {
       defaultValue: false,
       description: 'Deploy to https://hub.docker.com (public released versions, amd64 only). Please, use GitHub Actions, to deploy all possible platforms. Patch versions will not be deployed into hub.docker.com.'
     )
+    choice(
+      name: 'DISTRO',
+      choices: ['tomcat', 'wildfly', 'run', 'run4'],
+      description: 'Distribution to build and deploy'
+    )
     booleanParam(
       name: 'ATTACH_SBOM_TO_ARTIFACTS',
       defaultValue: false,
@@ -78,7 +83,7 @@ pipeline {
         container(Constants.KANIKO_CONTAINER) {
           script {
             // oci-1-1 confirmed working against harbor.cib.de
-            pushImage("harbor.cib.de/dev", "linux/amd64", cibsevenVersion, "oci-1-1")
+            pushImage("harbor.cib.de/dev", "linux/amd64", cibsevenVersion, params.DISTRO, "oci-1-1")
           }
         }
       }
@@ -96,7 +101,7 @@ pipeline {
           script {
             // Docker Hub's OCI 1.1 referrers support is unconfirmed; skip SBOM deployment
             // there until a mode is verified and explicitly set.
-            pushImage("docker.io/cibseven", "linux/amd64", cibsevenVersion, "none")
+            pushImage("docker.io/cibseven", "linux/amd64", cibsevenVersion, params.DISTRO, "none")
           }
         }
       }
@@ -105,17 +110,18 @@ pipeline {
   }
 }
 
-def pushImage(String destination, String platform, String cibsevenVersion, String sbomDeployMode) {
+def pushImage(String destination, String platform, String cibsevenVersion, String distro, String sbomDeployMode) {
   withMaven(options: []) {
     def prefix = ""
     if (platform == "linux/arm64") {
       prefix = "arm64-"
     }
 
-    def imageTag = "${prefix}${cibsevenVersion}"
+    def imageTag = "${prefix}${distro}-${cibsevenVersion}"
     def sbomFile = "cibseven-${imageTag}.cdx.json"
     def primaryImageRef = "${destination}/cibseven:${imageTag}"
     def normalizedSbomDeployMode = normalizeSbomDeployMode(sbomDeployMode)
+    def distroArg = "--build-arg DISTRO=\"${distro}\""
 
     def deployLatest = !isPatchVersion(cibsevenVersion)
     if (deployLatest) {
@@ -123,8 +129,9 @@ def pushImage(String destination, String platform, String cibsevenVersion, Strin
         /kaniko/executor --dockerfile `pwd`/Dockerfile \
             --context `pwd` \
             --custom-platform=${platform} \
-            --destination="${destination}/cibseven:${prefix}${cibsevenVersion}" \
-            --destination="${destination}/cibseven:${prefix}latest"
+            --destination="${destination}/cibseven:${imageTag}" \
+            --destination="${destination}/cibseven:${prefix}${distro}-latest" \
+            ${distroArg}
       """
     }
     else {
@@ -132,7 +139,8 @@ def pushImage(String destination, String platform, String cibsevenVersion, Strin
         /kaniko/executor --dockerfile `pwd`/Dockerfile \
             --context `pwd` \
             --custom-platform=${platform} \
-            --destination="${destination}/cibseven:${prefix}${cibsevenVersion}"
+            --destination="${destination}/cibseven:${imageTag}" \
+            ${distroArg}
       """
     }
 
