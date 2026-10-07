@@ -150,8 +150,14 @@ def pushImage(String destination, String platform, String cibsevenVersion, Strin
     // Clean Kaniko workspace BEFORE build to prevent layer accumulation across the
     // multiple sequential builds that can now happen in one pod (DISTRO=ALL, and/or
     // both destinations enabled).
+    // TEMPORARY DEBUG: show what's actually in these paths before/after cleanup,
+    // to confirm whether the rm -rf below is actually taking effect.
     sh """
+      echo "--- BEFORE cleanup (distro=${distro}) ---"
+      du -sh /workspace /kaniko/0 /kaniko/1 2>/dev/null || true
       rm -rf /workspace/* /kaniko/.docker/* /kaniko/0 /kaniko/1 2>/dev/null || true
+      echo "--- AFTER cleanup (distro=${distro}) ---"
+      du -sh /workspace /kaniko/0 /kaniko/1 2>/dev/null || true
     """
 
     sh """
