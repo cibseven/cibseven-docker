@@ -36,8 +36,8 @@ pipeline {
   parameters {
     choice(
       name: 'DISTRO',
-      choices: ['tomcat', 'wildfly', 'run', 'run4'],
-      description: 'Distribution to build and deploy'
+      choices: ['ALL', 'tomcat', 'wildfly', 'run', 'run4'],
+      description: 'Distribution to build and deploy (ALL builds and deploys every distribution, one by one)'
     )
     booleanParam(
       name: 'DEPLOY_HARBOR_CIB_DE',
@@ -48,16 +48,6 @@ pipeline {
       name: 'DEPLOY_DOCKER_HUB',
       defaultValue: false,
       description: 'Deploy to https://hub.docker.com (public released versions, amd64 only). Please, use GitHub Actions, to deploy all possible platforms. Patch versions will not be deployed into hub.docker.com.'
-    )
-    booleanParam(
-      name: 'ATTACH_SBOM_TO_ARTIFACTS',
-      defaultValue: false,
-      description: 'Attach generated image SBOMs as Jenkins build artifacts'
-    )
-    booleanParam(
-      name: 'DEPLOY_WITHOUT_SBOM',
-      defaultValue: false,
-      description: 'Skip SBOM generation and OCI attachment entirely'
     )
   }
 
@@ -90,7 +80,9 @@ pipeline {
         container(Constants.KANIKO_CONTAINER) {
           script {
             // oci-1-1 confirmed working against harbor.cib.de
-            pushImage("harbor.cib.de/dev", "linux/amd64", cibsevenVersion, params.DISTRO, "oci-1-1")
+            getDistrosToBuild().each { distro ->
+              pushImage("harbor.cib.de/dev", "linux/amd64", cibsevenVersion, distro, "oci-1-1")
+            }
           }
         }
       }
@@ -108,13 +100,20 @@ pipeline {
           script {
             // Docker Hub's OCI 1.1 referrers support is unconfirmed; skip SBOM deployment
             // there until a mode is verified and explicitly set.
-            pushImage("docker.io/cibseven", "linux/amd64", cibsevenVersion, params.DISTRO, "none")
+            getDistrosToBuild().each { distro ->
+              pushImage("docker.io/cibseven", "linux/amd64", cibsevenVersion, distro, "none")
+            }
           }
         }
       }
     }
 
   }
+}
+
+// Returns the list of distros to build: all of them if DISTRO == 'ALL', otherwise just the selected one.
+def getDistrosToBuild() {
+  return params.DISTRO == 'ALL' ? ['tomcat', 'wildfly', 'run', 'run4'] : [params.DISTRO]
 }
 
 def pushImage(String destination, String platform, String cibsevenVersion, String distro, String sbomDeployMode) {
@@ -137,7 +136,7 @@ def pushImage(String destination, String platform, String cibsevenVersion, Strin
     def imageTag = "${prefix}${cibsevenVersion}"
     def sbomFile = "cibseven-${imageTag}.cdx.json"
     def primaryImageRef = "${destination}/cibseven:${imageTag}"
-    sbomDeployMode = (sbomDeployMode == "oci-1-1" || sbomDeployMode == "legacy") ? sbomDeployMode : "none"
+    sbomDeployMode = (sbomDeployMode == "oci-1-1") ? sbomDeployMode : "none"
 
     def destinations = "--destination=\"${destination}/cibseven:${prefix}${cibsevenVersion}\""
     if (deployLatest) {
@@ -147,6 +146,13 @@ def pushImage(String destination, String platform, String cibsevenVersion, Strin
         destinations += " --destination=\"${destination}/cibseven:latest\""
       }
     }
+
+    // Clean Kaniko workspace BEFORE build to prevent layer accumulation across the
+    // multiple sequential builds that can now happen in one pod (DISTRO=ALL, and/or
+    // both destinations enabled).
+    sh """
+      rm -rf /workspace/* /kaniko/.docker/* /kaniko/0 /kaniko/1 2>/dev/null || true
+    """
 
     sh """
       /kaniko/executor --dockerfile `pwd`/Dockerfile \
@@ -158,18 +164,9 @@ def pushImage(String destination, String platform, String cibsevenVersion, Strin
           ${snapshotArg}
     """
 
-    def deploySbom = !params.DEPLOY_WITHOUT_SBOM && sbomDeployMode != "none"
-    def attachSbom = params.ATTACH_SBOM_TO_ARTIFACTS
-    if (attachSbom || deploySbom) {
+    if (sbomDeployMode != "none") {
       generateSbom(primaryImageRef, sbomFile)
-
-      if (attachSbom) {
-        archiveArtifacts artifacts: sbomFile, fingerprint: true
-      }
-
-      if (deploySbom) {
-        deploySbomToRegistry(primaryImageRef, sbomFile, sbomDeployMode)
-      }
+      deploySbomToRegistry(primaryImageRef, sbomFile)
     }
   }
 }
@@ -190,26 +187,21 @@ def generateSbom(String imageRef, String sbomFile) {
       grep -Eq '"bomFormat"[[:space:]]*:[[:space:]]*"CycloneDX"' ${sbomFile}
     """
   }
+
+  // Held a copy of the registry credentials - remove it once it's no longer needed.
+  sh "rm -rf ${dockerConfigDir}"
 }
 
-// Attaches the already-generated SBOM to the image. "oci-1-1" uses the real referrers API
-// (confirmed working on Harbor); "legacy" uses cosign's tag-based fallback, which works
-// on any registry, for destinations whose OCI 1.1 support isn't confirmed yet.
-def deploySbomToRegistry(String imageRef, String sbomFile, String sbomDeployMode) {
+// Attaches the already-generated SBOM to the image via the real OCI 1.1 referrers API
+// (confirmed working on Harbor).
+def deploySbomToRegistry(String imageRef, String sbomFile) {
   def cosignBinary = downloadCosign()
 
-  def modeEnv = ""
-  def modeArgs = ""
-  if (sbomDeployMode == "oci-1-1") {
-    modeEnv = "COSIGN_EXPERIMENTAL=1 "
-    modeArgs = "--registry-referrers-mode oci-1-1"
-  }
-
   sh """
-    DOCKER_CONFIG=/kaniko/.docker ${modeEnv}${cosignBinary} attach sbom \
+    DOCKER_CONFIG=/kaniko/.docker COSIGN_EXPERIMENTAL=1 ${cosignBinary} attach sbom \
         --sbom ${sbomFile} \
         --type cyclonedx \
-        ${modeArgs} \
+        --registry-referrers-mode oci-1-1 \
         "${imageRef}"
   """
 }
