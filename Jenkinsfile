@@ -147,24 +147,9 @@ def pushImage(String destination, String platform, String cibsevenVersion, Strin
       }
     }
 
-    // Clean Kaniko workspace BEFORE build to prevent layer accumulation across the
-    // multiple sequential builds that can now happen in one pod (DISTRO=ALL, and/or
-    // both destinations enabled).
-    // TEMPORARY DEBUG: show what's actually in /kaniko (all numbered dirs, not just
-    // 0/1) and /workspace before/after cleanup, to confirm the rm -rf is effective
-    // and that kaniko isn't creating additional numbered dirs our cleanup never targets.
+    // Clean Kaniko workspace BEFORE build to prevent layer accumulation
     sh """
-      echo "--- BEFORE cleanup (distro=${distro}) ---"
-      ls -la /kaniko/ || true
-      for p in /workspace /kaniko/0 /kaniko/1; do
-        if [ -e "\$p" ]; then du -sh "\$p"; else echo "\$p: does not exist"; fi
-      done
       rm -rf /workspace/* /kaniko/.docker/* /kaniko/0 /kaniko/1 2>/dev/null || true
-      echo "--- AFTER cleanup (distro=${distro}) ---"
-      ls -la /kaniko/ || true
-      for p in /workspace /kaniko/0 /kaniko/1; do
-        if [ -e "\$p" ]; then du -sh "\$p"; else echo "\$p: does not exist"; fi
-      done
     """
 
     sh """
@@ -172,6 +157,8 @@ def pushImage(String destination, String platform, String cibsevenVersion, Strin
           --context `pwd` \
           --custom-platform=${platform} \
           ${destinations} \
+          --cache=false \
+          --cleanup \
           ${distroArg} \
           ${versionArg} \
           ${snapshotArg}
