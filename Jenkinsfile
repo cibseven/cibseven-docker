@@ -14,7 +14,15 @@ pipeline {
     kubernetes {
       yaml BuildPodCreator.fromScratch(this)
           .withMavenJdk17Container()
-          .withKanikoContainer()
+          .withSyftContainer()
+          .withKanikoContainer([
+                        resources: [
+                            cpu: '4',
+                            memory: '16Gi',
+                            ephemeralStorage: '14Gi'
+                        ]
+                    ]
+          )
           .asYaml()
       defaultContainer Constants.MAVEN_JDK_17_CONTAINER
     }
@@ -26,6 +34,11 @@ pipeline {
 
   // Parameter that can be changed in the Jenkins UI
   parameters {
+    choice(
+      name: 'DISTRO',
+      choices: ['ALL', 'tomcat', 'wildfly', 'run', 'run4'],
+      description: 'Distribution to build and deploy (ALL builds and deploys every distribution, one by one)'
+    )
     booleanParam(
       name: 'DEPLOY_HARBOR_CIB_DE',
       defaultValue: false,
@@ -47,6 +60,13 @@ pipeline {
             script: 'grep VERSION= Dockerfile | head -n1 | cut -d = -f 2',
             returnStdout: true
           ).trim()
+          def snapshot = sh(
+            script: 'grep SNAPSHOT= Dockerfile | head -n1 | cut -d = -f 2',
+            returnStdout: true
+          ).trim()
+          if (snapshot == 'true') {
+            cibsevenVersion += '-SNAPSHOT'
+          }
           echo "CIB seven version ${cibsevenVersion}"
         }
       }
@@ -59,8 +79,10 @@ pipeline {
       steps {
         container(Constants.KANIKO_CONTAINER) {
           script {
-            pushImage("harbor.cib.de/dev", "linux/amd64", cibsevenVersion)
-            // pushImage("harbor.cib.de/dev", "linux/arm64", cibsevenVersion)
+            // oci-1-1 confirmed working against harbor.cib.de
+            getDistrosToBuild().each { distro ->
+              pushImage("harbor.cib.de/dev", "linux/amd64", cibsevenVersion, distro, "oci-1-1")
+            }
           }
         }
       }
@@ -70,14 +92,17 @@ pipeline {
       when {
         allOf {
           expression { params.DEPLOY_DOCKER_HUB == true }
-          expression { isPatchVersion(cibsevenVersion) == false }
+          expression { !cibsevenVersion.endsWith('-SNAPSHOT') }
         }
       }
       steps {
         container(Constants.KANIKO_CONTAINER) {
           script {
-            pushImage("docker.io/cibseven", "linux/amd64", cibsevenVersion)
-            // pushImage("docker.io/cibseven", "linux/arm64", cibsevenVersion)
+            // Docker Hub's OCI 1.1 referrers support is unconfirmed; skip SBOM deployment
+            // there until a mode is verified and explicitly set.
+            getDistrosToBuild().each { distro ->
+              pushImage("docker.io/cibseven", "linux/amd64", cibsevenVersion, distro, "none")
+            }
           }
         }
       }
@@ -86,44 +111,122 @@ pipeline {
   }
 }
 
-def pushImage(String destination, String platform, String cibsevenVersion) {
+// Returns the list of distros to build: all of them if DISTRO == 'ALL', otherwise just the selected one.
+def getDistrosToBuild() {
+  return params.DISTRO == 'ALL' ? ['tomcat', 'wildfly', 'run', 'run4'] : [params.DISTRO]
+}
+
+def pushImage(String destination, String platform, String cibsevenVersion, String distro, String sbomDeployMode) {
   withMaven(options: []) {
     def prefix = ""
     if (platform == "linux/arm64") {
       prefix = "arm64-"
     }
-
-    def deployLatest = !isPatchVersion(cibsevenVersion)
-    if (deployLatest) {
-      sh """
-        /kaniko/executor --dockerfile `pwd`/Dockerfile \
-            --context `pwd` \
-            --custom-platform=${platform} \
-            --destination="${destination}/cibseven:${prefix}${cibsevenVersion}" \
-            --destination="${destination}/cibseven:${prefix}latest"
-      """
+    if (distro && distro != '') {
+      prefix = prefix + "${distro}-"
     }
-    else {
-      sh """
-        /kaniko/executor --dockerfile `pwd`/Dockerfile \
-            --context `pwd` \
-            --custom-platform=${platform} \
-            --destination="${destination}/cibseven:${prefix}${cibsevenVersion}"
-      """
+
+    def isDefault = distro == 'tomcat'
+    def isSnapshot = cibsevenVersion.endsWith('-SNAPSHOT')
+    def deployLatest = !isSnapshot
+    def distroArg = "--build-arg DISTRO=\"${distro}\""
+    def baseVersion = cibsevenVersion.replace('-SNAPSHOT', '')
+    def versionArg = "--build-arg VERSION=\"${baseVersion}\""
+    def snapshotArg = "--build-arg SNAPSHOT=${isSnapshot}"
+    def imageTag = "${prefix}${cibsevenVersion}"
+    def sbomFile = "cibseven-${imageTag}.cdx.json"
+    def primaryImageRef = "${destination}/cibseven:${imageTag}"
+    sbomDeployMode = (sbomDeployMode == "oci-1-1") ? sbomDeployMode : "none"
+
+    def destinations = "--destination=\"${destination}/cibseven:${prefix}${cibsevenVersion}\""
+    if (deployLatest) {
+      destinations += " --destination=\"${destination}/cibseven:${prefix}latest\""
+      if (isDefault) {
+        destinations += " --destination=\"${destination}/cibseven:${cibsevenVersion}\""
+        destinations += " --destination=\"${destination}/cibseven:latest\""
+      }
+    }
+
+    // Clean Kaniko workspace BEFORE build to prevent layer accumulation
+    sh """
+      rm -rf /workspace/* /kaniko/.docker/* /kaniko/0 /kaniko/1 2>/dev/null || true
+    """
+
+    sh """
+      /kaniko/executor --dockerfile `pwd`/Dockerfile \
+          --context `pwd` \
+          --custom-platform=${platform} \
+          ${destinations} \
+          --cache=false \
+          --cleanup \
+          ${distroArg} \
+          ${versionArg} \
+          ${snapshotArg}
+    """
+
+    if (sbomDeployMode != "none") {
+      generateSbom(primaryImageRef, sbomFile)
+      deploySbomToRegistry(primaryImageRef, sbomFile)
     }
   }
 }
 
-// - "1.2.0" -> no
-// - "1.2.0-SNAPSHOT" -> no
-// - "1.2.3" -> yes
-// - "1.2.3-SNAPSHOT" -> yes
-// - "7.22.0-cibseven" -> no
-// - "7.22.1-cibseven" -> yes
-def isPatchVersion(cibsevenVersion) {
-    List version = cibsevenVersion.tokenize('.')
-    if (version.size() < 3) {
-        return false
+// Scans the already-pushed image straight from the registry (no second build needed).
+def generateSbom(String imageRef, String sbomFile) {
+  // Kaniko's registry credentials live only in its own container; copy them onto the
+  // shared workspace so the Syft container below can reuse them to pull the image.
+  def dockerConfigDir = "${env.WORKSPACE}/.docker-config-for-sbom"
+  sh "mkdir -p ${dockerConfigDir} && cp /kaniko/.docker/config.json ${dockerConfigDir}/config.json"
+
+  try {
+    container(Constants.SYFT_CONTAINER) {
+      sh """
+        DOCKER_CONFIG=${dockerConfigDir} syft ${imageRef} \
+            --scope all-layers \
+            --output cyclonedx-json=${sbomFile}
+        test -s ${sbomFile}
+        grep -Eq '"bomFormat"[[:space:]]*:[[:space:]]*"CycloneDX"' ${sbomFile}
+      """
     }
-    return version[2].tokenize('-')[0] != "0"
+  } finally {
+    // Held a copy of the registry credentials - remove it regardless of success/failure.
+    sh "rm -rf ${dockerConfigDir}"
+  }
+}
+
+// Attaches the already-generated SBOM to the image via the real OCI 1.1 referrers API
+// (confirmed working on Harbor).
+def deploySbomToRegistry(String imageRef, String sbomFile) {
+  def cosignBinary = downloadCosign()
+
+  sh """
+    DOCKER_CONFIG=/kaniko/.docker COSIGN_EXPERIMENTAL=1 ${cosignBinary} attach sbom \
+        --sbom ${sbomFile} \
+        --type cyclonedx \
+        --registry-referrers-mode oci-1-1 \
+        "${imageRef}"
+  """
+}
+
+// cosign/curl are not available on this Jenkins agent, so fetch the cosign binary
+// once via Maven's wagon plugin instead (mvn is guaranteed in the Maven container).
+def downloadCosign() {
+  def cosignVersion = "v2.4.1"
+  // SHA256 of cosign-linux-amd64 for cosignVersion, from cosign's published checksums
+  // file - update this alongside cosignVersion if it's ever bumped.
+  def cosignSha256 = "8b24b946dd5809c6bd93de08033bcf6bc0ed7d336b7785787c080f574b89249b"
+  def cosignBinary = "${env.WORKSPACE}/target/tools/cosign-linux-amd64"
+  if (!fileExists(cosignBinary)) {
+    container(Constants.MAVEN_JDK_17_CONTAINER) {
+      sh """
+        mvn -q org.codehaus.mojo:wagon-maven-plugin:3.0.0:download-single \
+            -Dwagon.url=https://github.com/sigstore/cosign/releases/download/${cosignVersion} \
+            -Dwagon.fromFile=cosign-linux-amd64 \
+            -Dwagon.toDir=target/tools
+        echo '${cosignSha256}  ${cosignBinary}' | sha256sum -c -
+        chmod +x ${cosignBinary}
+      """
+    }
+  }
+  return cosignBinary
 }
