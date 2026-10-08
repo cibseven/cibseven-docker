@@ -92,7 +92,7 @@ pipeline {
       when {
         allOf {
           expression { params.DEPLOY_DOCKER_HUB == true }
-          expression { isPatchVersion(cibsevenVersion) == false }
+          expression { !cibsevenVersion.endsWith('-SNAPSHOT') }
         }
       }
       steps {
@@ -178,18 +178,20 @@ def generateSbom(String imageRef, String sbomFile) {
   def dockerConfigDir = "${env.WORKSPACE}/.docker-config-for-sbom"
   sh "mkdir -p ${dockerConfigDir} && cp /kaniko/.docker/config.json ${dockerConfigDir}/config.json"
 
-  container(Constants.SYFT_CONTAINER) {
-    sh """
-      DOCKER_CONFIG=${dockerConfigDir} syft ${imageRef} \
-          --scope all-layers \
-          --output cyclonedx-json=${sbomFile}
-      test -s ${sbomFile}
-      grep -Eq '"bomFormat"[[:space:]]*:[[:space:]]*"CycloneDX"' ${sbomFile}
-    """
+  try {
+    container(Constants.SYFT_CONTAINER) {
+      sh """
+        DOCKER_CONFIG=${dockerConfigDir} syft ${imageRef} \
+            --scope all-layers \
+            --output cyclonedx-json=${sbomFile}
+        test -s ${sbomFile}
+        grep -Eq '"bomFormat"[[:space:]]*:[[:space:]]*"CycloneDX"' ${sbomFile}
+      """
+    }
+  } finally {
+    // Held a copy of the registry credentials - remove it regardless of success/failure.
+    sh "rm -rf ${dockerConfigDir}"
   }
-
-  // Held a copy of the registry credentials - remove it once it's no longer needed.
-  sh "rm -rf ${dockerConfigDir}"
 }
 
 // Attaches the already-generated SBOM to the image via the real OCI 1.1 referrers API
@@ -210,6 +212,9 @@ def deploySbomToRegistry(String imageRef, String sbomFile) {
 // once via Maven's wagon plugin instead (mvn is guaranteed in the Maven container).
 def downloadCosign() {
   def cosignVersion = "v2.4.1"
+  // SHA256 of cosign-linux-amd64 for cosignVersion, from cosign's published checksums
+  // file - update this alongside cosignVersion if it's ever bumped.
+  def cosignSha256 = "8b24b946dd5809c6bd93de08033bcf6bc0ed7d336b7785787c080f574b89249b"
   def cosignBinary = "${env.WORKSPACE}/target/tools/cosign-linux-amd64"
   if (!fileExists(cosignBinary)) {
     container(Constants.MAVEN_JDK_17_CONTAINER) {
@@ -218,23 +223,10 @@ def downloadCosign() {
             -Dwagon.url=https://github.com/sigstore/cosign/releases/download/${cosignVersion} \
             -Dwagon.fromFile=cosign-linux-amd64 \
             -Dwagon.toDir=target/tools
+        echo '${cosignSha256}  ${cosignBinary}' | sha256sum -c -
         chmod +x ${cosignBinary}
       """
     }
   }
   return cosignBinary
-}
-
-// - "1.2.0" -> no
-// - "1.2.0-SNAPSHOT" -> no
-// - "1.2.3" -> yes
-// - "1.2.3-SNAPSHOT" -> yes
-// - "7.22.0-cibseven" -> no
-// - "7.22.1-cibseven" -> yes
-def isPatchVersion(cibsevenVersion) {
-    List version = cibsevenVersion.tokenize('.')
-    if (version.size() < 3) {
-        return false
-    }
-    return version[2].tokenize('-')[0] != "0"
 }
