@@ -127,9 +127,9 @@ def pushImage(String destination, String platform, String cibsevenVersion, Strin
     }
 
     def isDefault = distro == 'tomcat'
-    def deployLatest = !cibsevenVersion.endsWith('-SNAPSHOT')
+    def isSnapshot = cibsevenVersion.endsWith('-SNAPSHOT')
+    def deployLatest = !isSnapshot
     def distroArg = "--build-arg DISTRO=\"${distro}\""
-    def isSnapshot = !deployLatest
     def baseVersion = cibsevenVersion.replace('-SNAPSHOT', '')
     def versionArg = "--build-arg VERSION=\"${baseVersion}\""
     def snapshotArg = "--build-arg SNAPSHOT=${isSnapshot}"
