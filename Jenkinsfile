@@ -90,10 +90,10 @@ pipeline {
 
     stage('hub.docker.com') {
       when {
-        allOf {
+        //allOf {
           expression { params.DEPLOY_DOCKER_HUB == true }
-          expression { !cibsevenVersion.endsWith('-SNAPSHOT') }
-        }
+          //expression { !cibsevenVersion.endsWith('-SNAPSHOT') }
+        //}
       }
       steps {
         container(Constants.KANIKO_CONTAINER) {
