@@ -40,16 +40,8 @@ fi
 export JAVA_OPTS="${JAVA_OPTS:-} -javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar"
 
 # Webclient schema toggle: webappSchemaEnabled in the yml decides whether the engine creates the
-# modeler, chat and notification tables. Unset leaves the value the distribution ships; setting
-# WEBAPP_SCHEMA_ENABLED overrides it with a system property, which keeps the case the
-# generic-properties map key requires, and fails if there is nothing to override.
+# modeler, chat and notification tables.
 if [ -n "${WEBAPP_SCHEMA_ENABLED:-}" ]; then
-  for CONFIG in /camunda/configuration/default.yml /camunda/configuration/production.yml; do
-    if [ -f "${CONFIG}" ] && ! grep -q '^ *webappSchemaEnabled:' "${CONFIG}"; then
-      echo "ERROR: can't find and update webappSchemaEnabled in the config file: ${CONFIG}" >&2
-      exit 1
-    fi
-  done
   export JAVA_OPTS="${JAVA_OPTS:-} -Dcamunda.bpm.generic-properties.properties.webappSchemaEnabled=${WEBAPP_SCHEMA_ENABLED}"
 fi
 
