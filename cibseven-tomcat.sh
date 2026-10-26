@@ -18,6 +18,18 @@ if [ "${AI_AGENT_ENABLED:-true}" = "false" ]; then
   sed -i 's|,"${catalina.base}/lib-ai","${catalina.base}/lib-ai/\*\.jar"||' "${CATALINA_HOME}/conf/catalina.properties"
 fi
 
+# Webclient schema toggle: webappSchemaEnabled in bpm-platform.xml decides whether the engine
+# creates the modeler, chat and notification tables. Unset leaves the value the distribution
+# ships; setting WEBAPP_SCHEMA_ENABLED overrides it, and fails if there is nothing to override.
+if [ -n "${WEBAPP_SCHEMA_ENABLED:-}" ]; then
+  BPM_PLATFORM_XML="${CATALINA_HOME}/conf/bpm-platform.xml"
+  if ! grep -q '<property name="webappSchemaEnabled">' "${BPM_PLATFORM_XML}" 2>/dev/null; then
+    echo "ERROR: can't find and update webappSchemaEnabled in the config file: ${BPM_PLATFORM_XML}" >&2
+    exit 1
+  fi
+  sed -i -E 's|(<property name="webappSchemaEnabled">)[^<]*(</property>)|\1'"${WEBAPP_SCHEMA_ENABLED}"'\2|' "${BPM_PLATFORM_XML}"
+fi
+
 # Set default values for DB_ variables
 # Set Password as Docker Secrets for Swarm-Mode
 if [[ -z "${DB_PASSWORD:-}" && -n "${DB_PASSWORD_FILE:-}" && -f "${DB_PASSWORD_FILE:-}" ]]; then

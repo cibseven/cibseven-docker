@@ -14,6 +14,7 @@ docker-compose up --force-recreate -d postgres mysql opentelemetry-collector
 ./test-${DISTRO}.sh camunda-postgres
 ./test-${DISTRO}.sh camunda-password-file
 ./test-opentelemetry-${DISTRO}.sh camunda-opentelemetry
+./test-webapp-schema.sh camunda-modeler-disabled
 ./test-debug.sh camunda-debug
 docker-compose down -v
 cd -
