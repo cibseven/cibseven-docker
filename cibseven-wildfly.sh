@@ -111,6 +111,18 @@ if [ "${AI_AGENT_ENABLED:-true}" = "false" ]; then
     "$JBOSS_HOME/standalone/configuration/element-templates/cibseven-knowledge-ingestor.json"
 fi
 
+# Webclient schema toggle: webappSchemaEnabled in standalone.xml decides whether the engine
+# creates the modeler, chat and notification tables. Unset leaves the value the distribution
+# ships; setting WEBAPP_SCHEMA_ENABLED overrides it, and fails if there is nothing to override.
+if [ -n "${WEBAPP_SCHEMA_ENABLED:-}" ]; then
+  STANDALONE_XML="$JBOSS_HOME/standalone/configuration/standalone.xml"
+  if ! grep -q '<property name="webappSchemaEnabled">' "${STANDALONE_XML}" 2>/dev/null; then
+    echo "ERROR: can't find and update webappSchemaEnabled in the config file: ${STANDALONE_XML}" >&2
+    exit 1
+  fi
+  sed -i -E 's|(<property name="webappSchemaEnabled">)[^<]*(</property>)|\1'"${WEBAPP_SCHEMA_ENABLED}"'\2|' "${STANDALONE_XML}"
+fi
+
 # Define the target file path
 FILE="$JBOSS_HOME/modules/org/cibseven/config/main/cibseven-webclient.properties"
 
