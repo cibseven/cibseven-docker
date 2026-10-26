@@ -8,6 +8,15 @@ services:
             - "8080:8080"
         restart: unless-stopped
 
+    camunda-modeler-disabled:
+        image: cibseven/cibseven:${IMAGE_TAG:-${DISTRO}-${PLATFORM}}
+        platform: linux/${PLATFORM}
+        environment:
+            - WEBAPP_SCHEMA_ENABLED=false
+        ports:
+            - "8080:8080"
+        restart: unless-stopped
+
     camunda-mysql:
         image: cibseven/cibseven:${IMAGE_TAG:-${DISTRO}-${PLATFORM}}
         platform: linux/${PLATFORM}
