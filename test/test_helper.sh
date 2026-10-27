@@ -85,13 +85,13 @@ function test_encoding {
 }
 
 # Expected Prometheus metric names from opentelemetry/jmx_config.yaml as exported by the OTel agent
-# (prefix os. + mapping metrics; agent adds unit suffixes: _ratio, _seconds_total, _bytes).
+# (prefix os. + mapping metrics; agent adds unit suffixes: _seconds_total, _bytes).
 EXPECTED_JMX_METRICS=(
   os_cpu_count
   os_cpu_time_seconds_total
-  os_cpu_recent_utilization_ratio
+  os_cpu_recent_utilization
   os_system_cpu_load_1m
-  os_system_cpu_utilization_ratio
+  os_system_cpu_utilization
   os_file_descriptor_open_count
   os_file_descriptor_max_count
   os_virtual_memory_committed_size_bytes
