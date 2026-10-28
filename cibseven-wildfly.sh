@@ -111,16 +111,24 @@ if [ "${AI_AGENT_ENABLED:-true}" = "false" ]; then
     "$JBOSS_HOME/standalone/configuration/element-templates/cibseven-knowledge-ingestor.json"
 fi
 
-# Webclient schema toggle: webappSchemaEnabled in standalone.xml decides whether the engine
-# creates the modeler, chat and notification tables. Unset leaves the value the distribution
-# ships; setting WEBAPP_SCHEMA_ENABLED overrides it, and fails if there is nothing to override.
+# Webclient schema toggle: webappSchemaEnabled decides whether the engine creates the modeler,
+# chat and notification tables. Unset leaves the value the distribution ships; setting
+# WEBAPP_SCHEMA_ENABLED overrides it.
+#
+# Applied through the CLI rather than by rewriting standalone.xml: modify_datasource above
+# re-serializes that file, and the subsystem marshals property values as element text, so the
+# value ends up on its own line where a line-oriented edit silently matches nothing. map-put
+# also fails loudly when the engine or the attribute is missing, which is what we want.
 if [ -n "${WEBAPP_SCHEMA_ENABLED:-}" ]; then
-  STANDALONE_XML="$JBOSS_HOME/standalone/configuration/standalone.xml"
-  if ! grep -q '<property name="webappSchemaEnabled">' "${STANDALONE_XML}" 2>/dev/null; then
-    echo "ERROR: can't find and update webappSchemaEnabled in the config file: ${STANDALONE_XML}" >&2
-    exit 1
-  fi
-  sed -i -E 's|(<property name="webappSchemaEnabled">)[^<]*(</property>)|\1'"${WEBAPP_SCHEMA_ENABLED}"'\2|' "${STANDALONE_XML}"
+  cat <<-EOF > webapp-schema.cli
+batch
+embed-server
+/subsystem=camunda-bpm-platform/process-engines=default:map-put(name=properties,key=webappSchemaEnabled,value=${WEBAPP_SCHEMA_ENABLED})
+run-batch
+stop-embedded-server
+EOF
+  "${JBOSS_HOME}/bin/jboss-cli.sh" --file=webapp-schema.cli
+  rm -rf "${JBOSS_HOME}/standalone/configuration/standalone_xml_history/current/"* webapp-schema.cli
 fi
 
 # Define the target file path

@@ -8,7 +8,7 @@ services:
             - "8080:8080"
         restart: unless-stopped
 
-    camunda-modeler-disabled:
+    cibseven-modeler-disabled:
         image: cibseven/cibseven:${IMAGE_TAG:-${DISTRO}-${PLATFORM}}
         platform: linux/${PLATFORM}
         environment:
