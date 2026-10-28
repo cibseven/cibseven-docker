@@ -304,9 +304,14 @@ The OpenTelemetry Agent can be configured using environment variables.
 * `OTEL_METRICS_EXPORTER`: Configure metrics exporter (default: `none`, examples: `prometheus`, `otlp`)
 * `OTEL_TRACES_EXPORTER`: Configure traces exporter (default: `none`, example: `otlp`)
 * `OTEL_LOGS_EXPORTER`: Configure logs exporter (default: `none`, example: `otlp`) - **Note:** CIB seven uses a logging framework for application logging, so this is typically not needed
+* `OTEL_EXPORTER_PROMETHEUS_HOST`: Bind address for the Prometheus metrics exporter (default: `0.0.0.0`, allowing scraping through Docker networking)
 * `OTEL_EXPORTER_PROMETHEUS_PORT`: Port for Prometheus metrics exporter (default: `9464`)
 * `OTEL_JAVAAGENT_LOGGING`: OpenTelemetry agent logging mode (default: `application`)
 * `OTEL_JMX_CONFIG`: JMX metrics configuration files (default: `/camunda/javaagent/jmx_config.yaml,/camunda/javaagent/jmx_custom_config.yaml`)
+
+Restrict access to the Prometheus port to trusted scrapers. Set `OTEL_EXPORTER_PROMETHEUS_HOST=localhost` when only in-container scraping is needed.
+
+With agent 2.28.1, the CPU utilization metrics are exported as `os_cpu_recent_utilization` and `os_system_cpu_utilization`, without the previous `_ratio` suffix. Update dashboards and alerts that use the old names.
 
 **Additional Configuration for Metrics Export:**
 
