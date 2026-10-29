@@ -1,5 +1,5 @@
 services:
-    camunda:
+    cibseven:
         image: cibseven/cibseven:${IMAGE_TAG:-${DISTRO}-${PLATFORM}}
         platform: linux/${PLATFORM}
         environment:
@@ -17,7 +17,7 @@ services:
             - "8080:8080"
         restart: unless-stopped
 
-    camunda-mysql:
+    cibseven-mysql:
         image: cibseven/cibseven:${IMAGE_TAG:-${DISTRO}-${PLATFORM}}
         platform: linux/${PLATFORM}
         environment:
@@ -33,7 +33,7 @@ services:
             - "8080:8080"
         restart: unless-stopped
 
-    camunda-postgres:
+    cibseven-postgres:
         image: cibseven/cibseven:${IMAGE_TAG:-${DISTRO}-${PLATFORM}}
         platform: linux/${PLATFORM}
         environment:
@@ -49,7 +49,7 @@ services:
             - "8080:8080"
         restart: unless-stopped
 
-    camunda-debug:
+    cibseven-debug:
         image: cibseven/cibseven:${IMAGE_TAG:-${DISTRO}-${PLATFORM}}
         platform: linux/${PLATFORM}
         environment:
@@ -60,7 +60,7 @@ services:
             - "8000:8000"
         restart: unless-stopped
 
-    camunda-password-file:
+    cibseven-password-file:
         image: cibseven/cibseven:${IMAGE_TAG:-${DISTRO}-${PLATFORM}}
         platform: linux/${PLATFORM}
         environment:
@@ -92,7 +92,7 @@ services:
             - POSTGRES_USER=camunda
             - POSTGRES_PASSWORD=camunda
 
-    camunda-opentelemetry:
+    cibseven-opentelemetry:
         image: cibseven/cibseven:${IMAGE_TAG:-${DISTRO}-${PLATFORM}}
         platform: linux/${PLATFORM}
         environment:

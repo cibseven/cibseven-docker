@@ -23,11 +23,13 @@ fi
 # ships; setting WEBCLIENT_EXTENSIONS_ENABLED overrides it, and fails if there is nothing to override.
 if [ -n "${WEBCLIENT_EXTENSIONS_ENABLED:-}" ]; then
   BPM_PLATFORM_XML="${CATALINA_HOME}/conf/bpm-platform.xml"
-  if ! grep -q '<property name="webclientExtensionsEnabled">' "${BPM_PLATFORM_XML}" 2>/dev/null; then
+  # xmlstarlet binds the document's default namespace to the "_" prefix
+  XML_WEBCLIENT_EXTENSIONS="//_:property[@name='webclientExtensionsEnabled']"
+  if [ "$(xmlstarlet sel -t -v "count(${XML_WEBCLIENT_EXTENSIONS})" "${BPM_PLATFORM_XML}")" != "1" ]; then
     echo "ERROR: can't find and update webclientExtensionsEnabled in the config file: ${BPM_PLATFORM_XML}" >&2
     exit 1
   fi
-  sed -i -E 's|(<property name="webclientExtensionsEnabled">)[^<]*(</property>)|\1'"${WEBCLIENT_EXTENSIONS_ENABLED}"'\2|' "${BPM_PLATFORM_XML}"
+  xmlstarlet ed -L -u "${XML_WEBCLIENT_EXTENSIONS}" -v "${WEBCLIENT_EXTENSIONS_ENABLED}" "${BPM_PLATFORM_XML}"
 fi
 
 # Set default values for DB_ variables
