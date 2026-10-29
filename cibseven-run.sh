@@ -39,6 +39,12 @@ fi
 # Load the agent via JAVA_OPTS instead of JAVA_TOOL_OPTIONS
 export JAVA_OPTS="${JAVA_OPTS:-} -javaagent:/camunda/javaagent/opentelemetry-javaagent-${OPENTELEMETRY_AGENT_VERSION}.jar"
 
+# Webclient schema toggle: webclientExtensionsEnabled in the yml decides whether the engine creates the
+# modeler, chat and notification tables.
+if [ -n "${WEBCLIENT_EXTENSIONS_ENABLED:-}" ]; then
+  export JAVA_OPTS="${JAVA_OPTS:-} -Dcamunda.bpm.generic-properties.properties.webclientExtensionsEnabled=${WEBCLIENT_EXTENSIONS_ENABLED}"
+fi
+
 CMD="/camunda/internal/run.sh start"
 
 wait_for_it

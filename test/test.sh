@@ -9,11 +9,12 @@ export IMAGE_TAG="${DISTRO}-${PLATFORM}"
 source test_helper.sh
 
 docker-compose up --force-recreate -d postgres mysql opentelemetry-collector
-./test-${DISTRO}.sh camunda
-./test-${DISTRO}.sh camunda-mysql
-./test-${DISTRO}.sh camunda-postgres
-./test-${DISTRO}.sh camunda-password-file
-./test-opentelemetry-${DISTRO}.sh camunda-opentelemetry
-./test-debug.sh camunda-debug
+./test-${DISTRO}.sh cibseven
+./test-${DISTRO}.sh cibseven-mysql
+./test-${DISTRO}.sh cibseven-postgres
+./test-${DISTRO}.sh cibseven-password-file
+./test-opentelemetry-${DISTRO}.sh cibseven-opentelemetry
+./test-webclient-extensions.sh cibseven-modeler-disabled
+./test-debug.sh cibseven-debug
 docker-compose down -v
 cd -
