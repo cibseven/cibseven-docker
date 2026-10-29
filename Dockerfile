@@ -71,8 +71,8 @@ ENV DEBUG=false
 ENV AI_AGENT_ENABLED=true
 # Webclient schema toggle, overriding whatever the distribution configures. Unset means
 # the distribution decides, which is to create the modeler, chat and notification tables.
-# Set WEBAPP_SCHEMA_ENABLED=false to leave them out of the database.
-ENV WEBAPP_SCHEMA_ENABLED=
+# Set WEBCLIENT_EXTENSIONS_ENABLED=false to leave them out of the database.
+ENV WEBCLIENT_EXTENSIONS_ENABLED=
 ENV JAVA_OPTS=""
 ENV WILDFLY_MANAGEMENT_BLOCKING_TIMEOUT=600
 

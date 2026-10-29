@@ -12,7 +12,7 @@ services:
         image: cibseven/cibseven:${IMAGE_TAG:-${DISTRO}-${PLATFORM}}
         platform: linux/${PLATFORM}
         environment:
-            - WEBAPP_SCHEMA_ENABLED=false
+            - WEBCLIENT_EXTENSIONS_ENABLED=false
         ports:
             - "8080:8080"
         restart: unless-stopped

@@ -4,7 +4,7 @@ SERVICE=${1}
 
 source test_helper.sh
 
-# The service sets WEBAPP_SCHEMA_ENABLED=false, which tells the engine to leave the webclient
+# The service sets WEBCLIENT_EXTENSIONS_ENABLED=false, which tells the engine to leave the webclient
 # tables (MOD_, CHAT_, NOTIF_) out of the database. The configuration endpoint reports the schema
 # version of those tables, so it has to come back null here - that is how the webclient knows the
 # modeler, chat and notification features are unavailable.
@@ -23,10 +23,10 @@ _log "Server started"
 CONFIGURATION=$(curl --fail -s -H "Accept: application/json" http://localhost:8080/engine-rest/configuration) \
   || _exit 2 "Unable to read the configuration endpoint"
 
-echo "${CONFIGURATION}" | grep -q '"webappSchemaVersion"' \
-  || _exit 3 "Configuration endpoint does not report webappSchemaVersion"
+echo "${CONFIGURATION}" | grep -q '"webclientExtensionsVersion"' \
+  || _exit 3 "Configuration endpoint does not report webclientExtensionsVersion"
 
-echo "${CONFIGURATION}" | grep -q '"webappSchemaVersion"[[:space:]]*:[[:space:]]*null' \
-  || _exit 4 "Webclient tables were created despite WEBAPP_SCHEMA_ENABLED=false: ${CONFIGURATION}"
+echo "${CONFIGURATION}" | grep -q '"webclientExtensionsVersion"[[:space:]]*:[[:space:]]*null' \
+  || _exit 4 "Webclient tables were created despite WEBCLIENT_EXTENSIONS_ENABLED=false: ${CONFIGURATION}"
 
 _exit 0 "Test successfull"
