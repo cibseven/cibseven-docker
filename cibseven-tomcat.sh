@@ -18,6 +18,20 @@ if [ "${AI_AGENT_ENABLED:-true}" = "false" ]; then
   sed -i 's|,"${catalina.base}/lib-ai","${catalina.base}/lib-ai/\*\.jar"||' "${CATALINA_HOME}/conf/catalina.properties"
 fi
 
+# Webclient schema toggle: webclientExtensionsEnabled in bpm-platform.xml decides whether the engine
+# creates the modeler, chat and notification tables. Unset leaves the value the distribution
+# ships; setting WEBCLIENT_EXTENSIONS_ENABLED overrides it, and fails if there is nothing to override.
+if [ -n "${WEBCLIENT_EXTENSIONS_ENABLED:-}" ]; then
+  BPM_PLATFORM_XML="${CATALINA_HOME}/conf/bpm-platform.xml"
+  # xmlstarlet binds the document's default namespace to the "_" prefix
+  XML_WEBCLIENT_EXTENSIONS="//_:property[@name='webclientExtensionsEnabled']"
+  if [ "$(xmlstarlet sel -t -v "count(${XML_WEBCLIENT_EXTENSIONS})" "${BPM_PLATFORM_XML}")" != "1" ]; then
+    echo "ERROR: can't find and update webclientExtensionsEnabled in the config file: ${BPM_PLATFORM_XML}" >&2
+    exit 1
+  fi
+  xmlstarlet ed -L -u "${XML_WEBCLIENT_EXTENSIONS}" -v "${WEBCLIENT_EXTENSIONS_ENABLED}" "${BPM_PLATFORM_XML}"
+fi
+
 # Set default values for DB_ variables
 # Set Password as Docker Secrets for Swarm-Mode
 if [[ -z "${DB_PASSWORD:-}" && -n "${DB_PASSWORD_FILE:-}" && -f "${DB_PASSWORD_FILE:-}" ]]; then

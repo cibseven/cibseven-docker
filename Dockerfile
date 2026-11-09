@@ -69,6 +69,10 @@ ENV DEBUG=false
 # AI Agent connector toggle. The ai-agent connector ships active-by-default in
 # the Tomcat distribution. Set AI_AGENT_ENABLED=false to deactivate it at startup.
 ENV AI_AGENT_ENABLED=true
+# Webclient schema toggle, overriding whatever the distribution configures. Unset means
+# the distribution decides, which is to create the modeler, chat and notification tables.
+# Set WEBCLIENT_EXTENSIONS_ENABLED=false to leave them out of the database.
+ENV WEBCLIENT_EXTENSIONS_ENABLED=
 ENV JAVA_OPTS=""
 ENV WILDFLY_MANAGEMENT_BLOCKING_TIMEOUT=600
 

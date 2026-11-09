@@ -10,7 +10,7 @@ receivers:
         - job_name: 'cibseven'
           scrape_interval: 30s
           static_configs:
-            - targets: ['camunda-opentelemetry:9464']
+            - targets: ['cibseven-opentelemetry:9464']
               labels:
                 service: 'cibseven'
 
