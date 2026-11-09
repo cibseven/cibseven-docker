@@ -36,7 +36,7 @@ pipeline {
   parameters {
     choice(
       name: 'DISTRO',
-      choices: ['ALL', 'tomcat', 'wildfly', 'run', 'run4'],
+      choices: ['ALL', 'tomcat', 'wildfly', 'run'],
       description: 'Distribution to build and deploy (ALL builds and deploys every distribution, one by one)'
     )
     booleanParam(
@@ -113,7 +113,7 @@ pipeline {
 
 // Returns the list of distros to build: all of them if DISTRO == 'ALL', otherwise just the selected one.
 def getDistrosToBuild() {
-  return params.DISTRO == 'ALL' ? ['tomcat', 'wildfly', 'run', 'run4'] : [params.DISTRO]
+  return params.DISTRO == 'ALL' ? ['tomcat', 'wildfly', 'run'] : [params.DISTRO]
 }
 
 def pushImage(String destination, String platform, String cibsevenVersion, String distro, String sbomDeployMode) {

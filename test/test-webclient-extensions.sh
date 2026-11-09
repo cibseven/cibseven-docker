@@ -14,7 +14,7 @@ start_container
 case "${DISTRO}" in
   tomcat)       poll_log "org.apache.catalina.startup.Catalina.start Server startup in" "^SEVERE" ;;
   wildfly)      poll_log 'started in' 'started (with errors) in' ;;
-  run|run4)     WAIT=10 poll_log "starting to acquire jobs" "Application run failed" ;;
+  run)          WAIT=10 poll_log "starting to acquire jobs" "Application run failed" ;;
   *)            _exit 1 "Unknown distro: ${DISTRO}" ;;
 esac || _exit 1 "Server not started"
 
