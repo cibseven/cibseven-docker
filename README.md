@@ -291,7 +291,7 @@ The CIB seven Docker images come with the OpenTelemetry Java-Agent pre-installed
 **Loading the agent:**
 
 * On the `tomcat` and `wildfly` distributions the agent is **opt-in**: set `OTEL_AGENT_ENABLED=true` to attach it (default: `false`). This mirrors the pre-2.x `JMX_PROMETHEUS` behavior and avoids the agent's startup cost when telemetry is not needed.
-* On the Spring Boot `run` and `run4` distributions the agent is always loaded (it stays inert until an exporter is configured), so `OTEL_AGENT_ENABLED` has no effect there.
+* On the Spring Boot `run` distribution the agent is always loaded (it stays inert until an exporter is configured), so `OTEL_AGENT_ENABLED` has no effect there.
 
 #### Configuration
 
@@ -299,7 +299,7 @@ The OpenTelemetry Agent can be configured using environment variables.
 
 **Pre-configured Environment Variables (from Dockerfile):**
 
-* `OTEL_AGENT_ENABLED`: Attach the OpenTelemetry agent on `tomcat`/`wildfly` (default: `false`; no effect on `run`/`run4`, which always load it)
+* `OTEL_AGENT_ENABLED`: Attach the OpenTelemetry agent on `tomcat`/`wildfly` (default: `false`; no effect on `run`, which always loads it)
 * `OTEL_SERVICE_NAME`: Service name for telemetry data (default: `cibseven`)
 * `OTEL_METRICS_EXPORTER`: Configure metrics exporter (default: `none`, examples: `prometheus`, `otlp`)
 * `OTEL_TRACES_EXPORTER`: Configure traces exporter (default: `none`, example: `otlp`)

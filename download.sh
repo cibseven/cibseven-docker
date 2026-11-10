@@ -23,11 +23,8 @@ fi
 
 # Determine artifact group:
 # - wildfly variants all live under org.cibseven.bpm.wildfly
-# - run and run4 both live under org.cibseven.bpm.run (run4's artifactId is
-#   cibseven-bpm-run4 but its groupId is .bpm.run, not .bpm.run4)
 case ${DISTRO} in
     wildfly*) GROUP="wildfly"; ARTIFACT_GROUP_ID="wildfly" ;;
-    run4)     GROUP="run4";    ARTIFACT_GROUP_ID="run" ;;
     *)        GROUP="${DISTRO}"; ARTIFACT_GROUP_ID="${DISTRO}" ;;
 esac
 ARTIFACT_GROUP="org.cibseven.bpm.${ARTIFACT_GROUP_ID}"

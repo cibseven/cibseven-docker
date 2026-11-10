@@ -36,7 +36,7 @@ RUN apk add --no-cache \
         libssl3 \
         zlib=1.3.2-r1
 
-COPY settings.xml download.sh cibseven-run.sh cibseven-run4.sh cibseven-tomcat.sh cibseven-wildfly.sh  /tmp/
+COPY settings.xml download.sh cibseven-run.sh cibseven-tomcat.sh cibseven-wildfly.sh  /tmp/
 
 RUN /tmp/download.sh
 COPY wait_for_it-lib.sh /camunda/
@@ -79,7 +79,7 @@ ENV WILDFLY_MANAGEMENT_BLOCKING_TIMEOUT=600
 # OpenTelemetry Java agent toggle (opt-in). When false (the default) the agent is
 # NOT attached on Tomcat/WildFly, mirroring the pre-2.x JMX_PROMETHEUS=false default.
 # Set OTEL_AGENT_ENABLED=true to load the agent and configure exporters via OTEL_* below.
-# (The Spring Boot run/run4 distributions always load the agent via JAVA_OPTS.)
+# (The Spring Boot run distribution always loads the agent via JAVA_OPTS.)
 ENV OTEL_AGENT_ENABLED=false
 
 # OpenTelemetry default exporter settings (all exporters disabled, user must configure)
