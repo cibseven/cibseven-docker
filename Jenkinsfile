@@ -164,17 +164,11 @@ def pushImage(String destination, String platform, String cibsevenVersion, Strin
       }
     }
 
-    // Kaniko is meant to build one image per container, but this pipeline reuses the same
-    // container for every distro/Java combination, and the pod has a fixed ephemeral-storage
-    // limit. Reclaim whatever the previous build left behind, and report the biggest
-    // directories before and after, so a pod eviction can be traced to what filled the disk.
-    // [0-9]* covers every build stage dir, not just the two a 2-stage Dockerfile creates.
+    // Clean Kaniko workspace BEFORE build to prevent layer accumulation.
+    // Kaniko names its per-instruction snapshot dirs with random numbers
+    // (/kaniko/3449398282, ...)
     sh """
-      echo "=== largest directories before cleanup ==="
-      du -xsh /* 2>/dev/null | sort -h | tail -10 || true
-      rm -rf /workspace/* /kaniko/.docker/* /kaniko/[0-9]* /tmp/* 2>/dev/null || true
-      echo "=== largest directories after cleanup ==="
-      du -xsh /* 2>/dev/null | sort -h | tail -10 || true
+      rm -rf /workspace/* /kaniko/.docker/* /kaniko/[0-9]* 2>/dev/null || true
     """
 
     sh """
