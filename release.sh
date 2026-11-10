@@ -4,6 +4,12 @@ VERSION=${VERSION:-$(grep VERSION= Dockerfile | head -n1 | cut -d = -f 2)}
 DISTRO=${DISTRO:-$(grep DISTRO= Dockerfile | cut -d = -f 2)}
 SNAPSHOT=${SNAPSHOT:-$(grep SNAPSHOT= Dockerfile | cut -d = -f 2)}
 JAVA=${JAVA:-21}
+# Java 21 is the default and keeps the unprefixed tags; other Java versions get a javaNN- prefix.
+if [ "${JAVA}" = "21" ]; then
+    JAVA_PREFIX=""
+else
+    JAVA_PREFIX="java${JAVA}-"
+fi
 PLATFORMS=${PLATFORMS:-linux/amd64}
 NEXUS_USER=${NEXUS_USER:-}
 NEXUS_PASS=${NEXUS_PASS:-}
@@ -29,7 +35,7 @@ function build_and_push {
 }
 
 # check whether the image for distro was already released and exit in that case
-CHECK_TAG="${DISTRO}-${VERSION}"
+CHECK_TAG="${JAVA_PREFIX}${DISTRO}-${VERSION}"
 
 if [ $(docker manifest inspect $IMAGE:${CHECK_TAG} > /dev/null ; echo $?) == '0' ]; then
     echo "Not pushing already released docker image: $IMAGE:${CHECK_TAG}"
@@ -41,17 +47,17 @@ docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
 tags=()
 
 if [ "${SNAPSHOT}" = "true" ]; then
-    tags+=("${DISTRO}-${VERSION}-SNAPSHOT")
-    tags+=("${DISTRO}-SNAPSHOT")
+    tags+=("${JAVA_PREFIX}${DISTRO}-${VERSION}-SNAPSHOT")
+    tags+=("${JAVA_PREFIX}${DISTRO}-SNAPSHOT")
 
     if [ "${DISTRO}" = "tomcat" ]; then
-        tags+=("${VERSION}-SNAPSHOT")
-        tags+=("SNAPSHOT")
+        tags+=("${JAVA_PREFIX}${VERSION}-SNAPSHOT")
+        tags+=("${JAVA_PREFIX}SNAPSHOT")
     fi
 else
-    tags+=("${DISTRO}-${VERSION}")
+    tags+=("${JAVA_PREFIX}${DISTRO}-${VERSION}")
     if [ "${DISTRO}" = "tomcat" ]; then
-        tags+=("${VERSION}")
+        tags+=("${JAVA_PREFIX}${VERSION}")
     fi
 fi
 
@@ -61,10 +67,10 @@ fi
 # The 1st condition matches only when the version branch is the same as the main branch.
 if [ "$(git rev-parse --abbrev-ref HEAD)" = "main" ] && [ "${SNAPSHOT}" = "false" ]; then
     # tagging image as latest only from main branch
-    tags+=("${DISTRO}-latest")
-    tags+=("${DISTRO}")
+    tags+=("${JAVA_PREFIX}${DISTRO}-latest")
+    tags+=("${JAVA_PREFIX}${DISTRO}")
     if [ "${DISTRO}" = "tomcat" ]; then
-        tags+=("latest")
+        tags+=("${JAVA_PREFIX}latest")
     fi
 fi
 

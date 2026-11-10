@@ -20,7 +20,12 @@ fi
 
 REPO=docker.io
 IMAGE=cibseven/cibseven
-IMAGE_NAME=${REPO}/${IMAGE}:${DISTRO}-${PLATFORM}
+# Java 21 is the default and keeps the unprefixed tag; other Java versions get a javaNN- prefix.
+if [ "${JAVA:-21}" = "21" ]; then
+    IMAGE_NAME=${REPO}/${IMAGE}:${DISTRO}-${PLATFORM}
+else
+    IMAGE_NAME=${REPO}/${IMAGE}:java${JAVA}-${DISTRO}-${PLATFORM}
+fi
 
 docker buildx build .                         \
     -t "${IMAGE_NAME}"                        \

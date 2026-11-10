@@ -64,6 +64,19 @@ The following tag schema is used. The user has the choice between different appl
 
 If no `${DISTRO}` is specified, the `tomcat` distribution is used. For all available tags see the [docker hub tags][].
 
+### Java versions
+
+Images are built for two Java versions. Java 21 is the default and keeps the tags listed
+above unchanged; the Java 25 images carry an additional `java25-` prefix in front of the
+whole tag:
+
+- `java25-latest`, `java25-${DISTRO}-latest`
+- `java25-SNAPSHOT`, `java25-${DISTRO}-SNAPSHOT`, `java25-${DISTRO}-${VERSION}-SNAPSHOT`
+- `java25-${VERSION}`, `java25-${DISTRO}-${VERSION}`
+
+So `cibseven/cibseven:tomcat-latest` runs on Java 21, and
+`cibseven/cibseven:java25-tomcat-latest` is the same distribution on Java 25.
+
 ## CIB seven configuration
 
 You can find the complete CIB seven documentation at https://docs.cibseven.org/.
