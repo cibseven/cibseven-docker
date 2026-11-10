@@ -39,6 +39,11 @@ pipeline {
       choices: ['ALL', 'tomcat', 'wildfly', 'run'],
       description: 'Distribution to build and deploy (ALL builds and deploys every distribution, one by one)'
     )
+    choice(
+      name: 'JAVA_VERSION',
+      choices: ['ALL', '21', '25'],
+      description: 'Java version to build and deploy (ALL builds and deploys every Java version, one by one)'
+    )
     booleanParam(
       name: 'DEPLOY_HARBOR_CIB_DE',
       defaultValue: false,
@@ -81,7 +86,9 @@ pipeline {
           script {
             // oci-1-1 confirmed working against harbor.cib.de
             getDistrosToBuild().each { distro ->
-              pushImage("harbor.cib.de/dev", "linux/amd64", cibsevenVersion, distro, "oci-1-1")
+              getJavaVersionsToBuild().each { javaVersion ->
+                pushImage("harbor.cib.de/dev", "linux/amd64", cibsevenVersion, distro, javaVersion, "oci-1-1")
+              }
             }
           }
         }
@@ -101,7 +108,9 @@ pipeline {
             // Docker Hub's OCI 1.1 referrers support is unconfirmed; skip SBOM deployment
             // there until a mode is verified and explicitly set.
             getDistrosToBuild().each { distro ->
-              pushImage("docker.io/cibseven", "linux/amd64", cibsevenVersion, distro, "none")
+              getJavaVersionsToBuild().each { javaVersion ->
+                pushImage("docker.io/cibseven", "linux/amd64", cibsevenVersion, distro, javaVersion, "none")
+              }
             }
           }
         }
@@ -116,11 +125,18 @@ def getDistrosToBuild() {
   return params.DISTRO == 'ALL' ? ['tomcat', 'wildfly', 'run'] : [params.DISTRO]
 }
 
-def pushImage(String destination, String platform, String cibsevenVersion, String distro, String sbomDeployMode) {
+// Returns the list of Java versions to build: all of them if JAVA_VERSION == 'ALL', otherwise just the selected one.
+def getJavaVersionsToBuild() {
+  return params.JAVA_VERSION == 'ALL' ? ['21', '25'] : [params.JAVA_VERSION]
+}
+
+def pushImage(String destination, String platform, String cibsevenVersion, String distro, String javaVersion, String sbomDeployMode) {
   withMaven(options: []) {
-    def prefix = ""
+    // Java 21 is the default and keeps the unprefixed tags; other Java versions get a javaNN- prefix.
+    def javaPrefix = javaVersion == '21' ? "" : "java${javaVersion}-"
+    def prefix = javaPrefix
     if (platform == "linux/arm64") {
-      prefix = "arm64-"
+      prefix = prefix + "arm64-"
     }
     if (distro && distro != '') {
       prefix = prefix + "${distro}-"
@@ -133,6 +149,7 @@ def pushImage(String destination, String platform, String cibsevenVersion, Strin
     def baseVersion = cibsevenVersion.replace('-SNAPSHOT', '')
     def versionArg = "--build-arg VERSION=\"${baseVersion}\""
     def snapshotArg = "--build-arg SNAPSHOT=${isSnapshot}"
+    def javaArg = "--build-arg JAVA=\"${javaVersion}\""
     def imageTag = "${prefix}${cibsevenVersion}"
     def sbomFile = "cibseven-${imageTag}.cdx.json"
     def primaryImageRef = "${destination}/cibseven:${imageTag}"
@@ -142,14 +159,16 @@ def pushImage(String destination, String platform, String cibsevenVersion, Strin
     if (deployLatest) {
       destinations += " --destination=\"${destination}/cibseven:${prefix}latest\""
       if (isDefault) {
-        destinations += " --destination=\"${destination}/cibseven:${cibsevenVersion}\""
-        destinations += " --destination=\"${destination}/cibseven:latest\""
+        destinations += " --destination=\"${destination}/cibseven:${javaPrefix}${cibsevenVersion}\""
+        destinations += " --destination=\"${destination}/cibseven:${javaPrefix}latest\""
       }
     }
 
-    // Clean Kaniko workspace BEFORE build to prevent layer accumulation
+    // Clean Kaniko workspace BEFORE build to prevent layer accumulation.
+    // Kaniko names its per-instruction snapshot dirs with random numbers
+    // (/kaniko/3449398282, ...)
     sh """
-      rm -rf /workspace/* /kaniko/.docker/* /kaniko/0 /kaniko/1 2>/dev/null || true
+      rm -rf /workspace/* /kaniko/.docker/* /kaniko/[0-9]* 2>/dev/null || true
     """
 
     sh """
@@ -161,7 +180,8 @@ def pushImage(String destination, String platform, String cibsevenVersion, Strin
           --cleanup \
           ${distroArg} \
           ${versionArg} \
-          ${snapshotArg}
+          ${snapshotArg} \
+          ${javaArg}
     """
 
     if (sbomDeployMode != "none") {

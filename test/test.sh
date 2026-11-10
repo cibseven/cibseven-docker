@@ -4,7 +4,12 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 cd ${DIR}
 
-export IMAGE_TAG="${DISTRO}-${PLATFORM}"
+# Java 21 is the default and keeps the unprefixed tag; other Java versions get a javaNN- prefix.
+if [ "${JAVA:-21}" = "21" ]; then
+    export IMAGE_TAG="${DISTRO}-${PLATFORM}"
+else
+    export IMAGE_TAG="java${JAVA}-${DISTRO}-${PLATFORM}"
+fi
 
 source test_helper.sh
 
