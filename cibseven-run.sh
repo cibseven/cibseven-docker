@@ -45,6 +45,10 @@ if [ -n "${WEBCLIENT_EXTENSIONS_ENABLED:-}" ]; then
   export JAVA_OPTS="${JAVA_OPTS:-} -Dcamunda.bpm.generic-properties.properties.webclientExtensionsEnabled=${WEBCLIENT_EXTENSIONS_ENABLED}"
 fi
 
+# AI Agent connector and MCP REST API toggles: AI_AGENT_ENABLED and MCP_ENABLED are read by
+# run.sh itself, which adds configuration/userlib-ai/ to the classpath when either of them is
+# true, so they are simply passed through the environment.
+
 CMD="/camunda/internal/run.sh start"
 
 wait_for_it

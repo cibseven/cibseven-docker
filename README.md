@@ -122,6 +122,17 @@ when provided:
 
 While `DEBUG` can be used to enable debug output, it doesn't start a debug socket.
 
+The AI Agent connector, agentic ad hoc sub processes and the REST API MCP plugin
+ship together in `configuration/userlib-ai/` and are switched on and off as one:
+
+* `AI_AGENT_ENABLED`: `true` (default) or `false`
+* `MCP_ENABLED`: `true` or `false`; unset by default.
+
+They are combined with OR: if either is `true`, both are enabled. To switch them off,
+set `AI_AGENT_ENABLED=false` and leave `MCP_ENABLED` unset or `false`.
+
+`MCP_ENABLED` only applies to the `run` distribution; `tomcat` and `wildfly` don't ship the MCP REST API.
+
 `run` supports different startup options to choose whether or not to enable the 
 WebApps, the REST API or Swagger UI. By default, all three are enabled.
 
