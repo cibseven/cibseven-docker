@@ -17,6 +17,16 @@ services:
             - "8080:8080"
         restart: unless-stopped
 
+    cibseven-mcp-enabled:
+        image: cibseven/cibseven:${IMAGE_TAG:-${DISTRO}-${PLATFORM}}
+        platform: linux/${PLATFORM}
+        environment:
+            - AI_AGENT_ENABLED=false
+            - MCP_ENABLED=true
+        ports:
+            - "8080:8080"
+        restart: unless-stopped
+
     cibseven-mysql:
         image: cibseven/cibseven:${IMAGE_TAG:-${DISTRO}-${PLATFORM}}
         platform: linux/${PLATFORM}

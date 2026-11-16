@@ -20,6 +20,7 @@ docker-compose up --force-recreate -d postgres mysql opentelemetry-collector
 ./test-${DISTRO}.sh cibseven-password-file
 ./test-opentelemetry-${DISTRO}.sh cibseven-opentelemetry
 ./test-webclient-extensions.sh cibseven-modeler-disabled
+./test-mcp.sh cibseven-mcp-enabled
 ./test-debug.sh cibseven-debug
 docker-compose down -v
 cd -
