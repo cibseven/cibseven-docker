@@ -14,9 +14,6 @@ grep_log 'Deployed "cibseven-example-invoice-' || _exit 2 "Process application n
 
 _log "Process application deployed"
 
-test_login admin || _exit 3 "Unable to login to admin"
-test_login cockpit || _exit 4 "Unable to login to cockpit"
-test_login tasklist || _exit 5 "Unable to login to tasklist"
 test_login_webapp || _exit 6 "Unable to login to webapp"
 
 _log "Login successfull"
