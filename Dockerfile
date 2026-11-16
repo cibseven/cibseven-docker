@@ -69,6 +69,11 @@ ENV DEBUG=false
 # AI Agent connector toggle. The ai-agent connector ships active-by-default in
 # the Tomcat distribution. Set AI_AGENT_ENABLED=false to deactivate it at startup.
 ENV AI_AGENT_ENABLED=true
+# MCP toggle (run distribution only). The REST API MCP plugin shares the userlib-ai
+# folder with the AI Agent connector, so it is the same switch: both are on when
+# AI_AGENT_ENABLED or MCP_ENABLED is true. Set AI_AGENT_ENABLED=false (and leave
+# MCP_ENABLED unset or false) to keep both off the classpath.
+ENV MCP_ENABLED=
 # Webclient schema toggle, overriding whatever the distribution configures. Unset means
 # the distribution decides, which is to create the modeler, chat and notification tables.
 # Set WEBCLIENT_EXTENSIONS_ENABLED=false to leave them out of the database.
