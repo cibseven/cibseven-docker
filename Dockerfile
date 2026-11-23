@@ -1,4 +1,4 @@
-ARG VERSION=3.0.0
+ARG VERSION=3.1.0
 ARG JAVA=21
 ARG OPENTELEMETRY_AGENT_VERSION=2.28.1
 
@@ -7,7 +7,7 @@ FROM alpine:3.23 as builder
 # Re-declare to use in this stage (inherits the value from global)
 ARG VERSION
 ARG DISTRO=tomcat
-ARG SNAPSHOT=false
+ARG SNAPSHOT=true
 
 ARG USER
 ARG PASSWORD
